@@ -1,0 +1,80 @@
+{
+  "thesis": {
+    "title": "Environmental Exposure and Childhood Asthma Outcomes: Development and Validation of an Integrated Exposure Index Using the BREATHE-CC Cohort",
+    "program": "Rollins College Honors Degree Program",
+    "course_fall": "HON 498 HD",
+    "course_spring": "HON 499 HD",
+    "student": {
+      "name": "Aidan Meyers",
+      "email": "Ameyers@rollins.edu",
+      "majors": ["Psychology", "Chemistry"],
+      "minor": "Neuroscience",
+      "role_in_breathecc": "Project Coordinator"
+    },
+    "committee": [
+      {
+        "name": "Dr. Shan-Estelle Brown",
+        "role": "Thesis Sponsor",
+        "department": "Dept. of Anthropology, Rollins College",
+        "expertise": "Medical anthropology, community health, neighborhood determinants, SES",
+        "meeting_cadence": "Mondays 2:30 PM (confirmed weekly through September 2026)"
+      },
+      {
+        "name": "Dr. Raheleh Mohammadi",
+        "role": "Committee Member",
+        "department": "Dept. of Health Professions, Public Health Program, Rollins College",
+        "expertise": "Public health, epidemiology, health disparities, environmental health"
+      },
+      {
+        "name": "Dr. JJ Jasser",
+        "role": "Committee Member",
+        "department": "Director of Data Analytics, Rollins College",
+        "expertise": "Data science, computational methods"
+      }
+    ],
+    "external_guidance": {
+      "name": "Dr. Rajesh Melaram",
+      "role": "PI of BREATHE-CC (external guidance, NOT a committee member)",
+      "affiliation": "Melaram Lab, Texas A&M University-Corpus Christi"
+    }
+  },
+  "aims": {
+    "aim_1": {
+      "title": "Develop and Validate an Integrated Exposure Index (IEI)",
+      "description": "Create a weighted composite exposure metric integrating outdoor exposures (residential proximity to highways and industrial zones; ambient PM2.5, PM10, O3, SO2 from TCEQ/EPA stations) with indoor household exposures from BREATHE-CC surveys (secondhand smoke, gas cooking, mold/dampness, ventilation quality, pet allergens). Time-weighted across exposure locations using percentage-of-time variables. Validated through sensitivity analyses (varying weighting schemes, spatial interpolation methods) and comparison against single-pollutant models."
+    },
+    "aim_2": {
+      "title": "Test IEI Associations with Pediatric Asthma Outcomes",
+      "description": "Using available BREATHE-CC data, examine the IEI's independent associations with (a) monthly asthma exacerbation frequency, (b) Childhood Asthma Control Test (C-ACT) scores, and (c) wheezing phenotype trajectories identified via Group-Based Trajectory Modeling. Models adjust for sociodemographic covariates. Analysis pipeline built as a reproducible, documented codebase so it can be rerun on the full BREATHE-CC cohort once data collection is finalized. This aim produces a reproducible framework for later completion, not necessarily final data."
+    },
+    "scope_note": "An earlier version included a Neighborhood Completeness Index (NCI). Scope was refined to focus on the IEI in depth. The NCI remains viable future work."
+  },
+  "academic_calendar": {
+    "fall_2026": {
+      "classes_begin": "2026-08-24",
+      "thesis_work_begins": "2026-08-31",
+      "finals_begin": "2026-12-07",
+      "finals_end": "2026-12-11"
+    },
+    "spring_2027": {
+      "classes_begin": "2027-01-13",
+      "finals_begin": "2027-04-29",
+      "finals_end": "2027-05-04",
+      "honors_summit": "2027-04-TBD",
+      "final_submission_deadline": "2027-05-01"
+    }
+  },
+  "key_external_dependencies": {
+    "breathecc_data_status": "Cohort actively enrolling. Data collection ongoing. Final dataset NOT available by thesis defense. All analyses use available data with pipeline designed for rerunning on finalized cohort.",
+    "irb_modification_needed": "Time-Activity Supplement instrument requires IRB modification. Address collection (school, secondary residence) are HIPAA identifiers. Estimated 2-6 week turnaround depending on whether consent addendum is required.",
+    "spanish_translation": "Required for bilingual cohort. Must be submitted alongside English version to IRB."
+  },
+  "branding": {
+    "primary_blue": "#213c4e",
+    "accent_blue": "#2E6B8A",
+    "light_gray": "#F5F7F9",
+    "dark_text": "#333333",
+    "border_gray": "#CCCCCC",
+    "font": "Times New Roman (documents) / Inter or system font (dashboard)"
+  }
+}

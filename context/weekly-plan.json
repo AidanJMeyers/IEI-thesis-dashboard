@@ -1,0 +1,568 @@
+{
+  "plan_start_date": "2026-08-31",
+  "plan_end_date": "2027-05-01",
+  "total_weeks": 35,
+  "phases": ["Summer Planning", "Fall Semester", "Winter Break", "Spring Semester"],
+  "meeting_schedule": {
+    "day": "Monday",
+    "time": "2:30 PM",
+    "with": "Dr. Shan-Estelle Brown",
+    "confirmed_through": "September 2026",
+    "note": "Cadence after September TBD with Dr. Brown"
+  },
+  "weeks": [
+    {
+      "week": 1,
+      "start": "2026-08-31",
+      "end": "2026-09-06",
+      "phase": "Fall Semester",
+      "title": "Project Setup & Data Reconciliation",
+      "meeting": true,
+      "meeting_agenda": "Introductory thesis meeting: present updated timeline, discuss IRB strategy for Time-Activity Supplement, agree on communication expectations",
+      "tasks": [
+        {"task": "Set up thesis GitHub repository with project structure (R project, docs, data, outputs folders)", "priority": "high", "component": "fall_pipeline"},
+        {"task": "Export BREATHE-CC data dictionary from REDCap production", "priority": "high", "component": "fall_pipeline"},
+        {"task": "Reconcile Time-Activity Supplement fields against existing data dictionary (identify duplicates marked with warning)", "priority": "high", "component": "fall_pipeline"},
+        {"task": "Check approved BREATHE-CC consent language: does it cover address collection and geocoding beyond primary residence?", "priority": "high", "component": null},
+        {"task": "Begin systematic literature search in PubMed, Scopus, Web of Science for IEI-relevant papers", "priority": "medium", "component": "fall_annot_bib"},
+        {"task": "Set up Zotero collection for thesis references", "priority": "medium", "component": "fall_annot_bib"},
+        {"task": "Set up this thesis dashboard and populate with all tasks", "priority": "medium", "component": null}
+      ],
+      "key_decisions": ["Determine if IRB modification or consent addendum is needed based on existing consent language"],
+      "deliverables": []
+    },
+    {
+      "week": 2,
+      "start": "2026-09-07",
+      "end": "2026-09-13",
+      "phase": "Fall Semester",
+      "title": "Literature Search & IRB Submission Prep",
+      "meeting": true,
+      "meeting_agenda": "Report on data dictionary reconciliation, IRB strategy decision, literature search progress",
+      "tasks": [
+        {"task": "Continue literature search: time-weighted exposure models, indoor/outdoor integration, spatial interpolation in health studies", "priority": "high", "component": "fall_annot_bib"},
+        {"task": "Annotate first 12-15 sources with structured relevance notes", "priority": "high", "component": "fall_annot_bib"},
+        {"task": "Draft IRB modification narrative for Time-Activity Supplement (instrument description, methodological justification, data security plan for addresses)", "priority": "high", "component": null},
+        {"task": "Commission Spanish translation of Time-Activity Supplement (start in parallel with IRB prep)", "priority": "high", "component": null},
+        {"task": "Begin downloading TCEQ/EPA monitoring station data for Corpus Christi region (PM2.5, PM10, O3, SO2)", "priority": "medium", "component": "fall_pipeline"}
+      ],
+      "key_decisions": ["Finalize IRB modification vs. consent addendum approach"],
+      "deliverables": []
+    },
+    {
+      "week": 3,
+      "start": "2026-09-14",
+      "end": "2026-09-20",
+      "phase": "Fall Semester",
+      "title": "Annotated Bibliography Due / IRB Submission",
+      "meeting": true,
+      "meeting_agenda": "Review annotated bibliography draft, finalize IRB submission package",
+      "tasks": [
+        {"task": "Finalize and submit annotated bibliography (25+ sources)", "priority": "critical", "component": "fall_annot_bib"},
+        {"task": "Submit IRB modification package (English instrument PDF, Spanish translation, modification narrative, data security addendum if needed)", "priority": "critical", "component": null},
+        {"task": "Begin literature review outline: organize sources by theme (exposure assessment methods, indoor modeling, composite indices, time-activity patterns, pediatric asthma epidemiology)", "priority": "medium", "component": "fall_lit_review"},
+        {"task": "Continue ambient data download and cleaning", "priority": "medium", "component": "fall_pipeline"}
+      ],
+      "key_decisions": [],
+      "deliverables": ["Annotated Bibliography (15% of Fall grade)", "IRB Modification Package"]
+    },
+    {
+      "week": 4,
+      "start": "2026-09-21",
+      "end": "2026-09-27",
+      "phase": "Fall Semester",
+      "title": "Literature Review Writing Begins",
+      "meeting": true,
+      "meeting_agenda": "Lit review outline review, discuss ambient data pipeline progress, IRB submission confirmation",
+      "tasks": [
+        {"task": "Write lit review Section 1: Background on ambient air pollution and childhood asthma (outdoor exposure epidemiology)", "priority": "high", "component": "fall_lit_review"},
+        {"task": "Write lit review Section 2: Indoor exposure sources and respiratory outcomes", "priority": "high", "component": "fall_lit_review"},
+        {"task": "Set up R project for kriging pipeline: import monitoring station coordinates, configure spatial packages (sp, gstat, sf)", "priority": "medium", "component": "fall_pipeline"},
+        {"task": "Clean and format TCEQ/EPA data: monthly averages by station, handle missing data", "priority": "medium", "component": "fall_pipeline"}
+      ],
+      "key_decisions": [],
+      "deliverables": []
+    },
+    {
+      "week": 5,
+      "start": "2026-09-28",
+      "end": "2026-10-04",
+      "phase": "Fall Semester",
+      "title": "Literature Review & Kriging Pipeline",
+      "meeting": true,
+      "meeting_agenda": "Lit review draft sections 1-2, kriging pipeline demo, IRB status check",
+      "tasks": [
+        {"task": "Write lit review Section 3: Time-activity patterns and microenvironment exposure modeling", "priority": "high", "component": "fall_lit_review"},
+        {"task": "Write lit review Section 4: Composite exposure indices and the methodological gap", "priority": "high", "component": "fall_lit_review"},
+        {"task": "Build ordinary kriging pipeline for PM2.5 surface generation (variogram fitting, cross-validation)", "priority": "high", "component": "fall_pipeline"},
+        {"task": "Extend kriging to O3, SO2, PM10 surfaces", "priority": "medium", "component": "fall_pipeline"}
+      ],
+      "key_decisions": [],
+      "deliverables": []
+    },
+    {
+      "week": 6,
+      "start": "2026-10-05",
+      "end": "2026-10-11",
+      "phase": "Fall Semester",
+      "title": "Indoor Scoring & Infiltration Modeling",
+      "meeting": true,
+      "meeting_agenda": "Lit review progress, kriging results review, indoor modeling approach",
+      "tasks": [
+        {"task": "Build indoor survey scoring module: secondhand smoke, gas cooking, mold/dampness, ventilation quality scoring algorithms", "priority": "high", "component": "fall_pipeline"},
+        {"task": "Develop infiltration factor model: AC type + window behavior -> F_inf lookup table based on literature values", "priority": "high", "component": "fall_pipeline"},
+        {"task": "Implement indoor concentration model: C_indoor = F_inf * C_ambient + C_source", "priority": "high", "component": "fall_pipeline"},
+        {"task": "Revise literature review based on Dr. Brown feedback", "priority": "medium", "component": "fall_lit_review"},
+        {"task": "Check IRB modification status (expect 2-4 week turnaround from Week 3 submission)", "priority": "medium", "component": null}
+      ],
+      "key_decisions": ["Finalize infiltration factor values from literature for South Texas climate"],
+      "deliverables": []
+    },
+    {
+      "week": 7,
+      "start": "2026-10-12",
+      "end": "2026-10-18",
+      "phase": "Fall Semester",
+      "title": "Literature Review Due / IEI Composite Construction",
+      "meeting": true,
+      "meeting_agenda": "Submit literature review, present composite IEI construction methodology",
+      "tasks": [
+        {"task": "Finalize and submit literature review", "priority": "critical", "component": "fall_lit_review"},
+        {"task": "Integrate outdoor + indoor components into composite IEI score function", "priority": "high", "component": "fall_pipeline"},
+        {"task": "Implement time-weighting logic: use literature-based default time-activity patterns until participant data available", "priority": "high", "component": "fall_pipeline"},
+        {"task": "If IRB approved: deploy Time-Activity Supplement to REDCap development copy for testing", "priority": "high", "component": null}
+      ],
+      "key_decisions": ["Define default time-activity assumptions from literature for preliminary IEI"],
+      "deliverables": ["Literature Review (15% of Fall grade)"]
+    },
+    {
+      "week": 8,
+      "start": "2026-10-19",
+      "end": "2026-10-25",
+      "phase": "Fall Semester",
+      "title": "IEI Validation & Sensitivity Analysis",
+      "meeting": true,
+      "meeting_agenda": "IEI pipeline demo on test data, sensitivity analysis plan, begin manuscript discussion",
+      "tasks": [
+        {"task": "Run IEI computation on available BREATHE-CC participants using literature-based time-activity assumptions", "priority": "high", "component": "fall_pipeline"},
+        {"task": "Sensitivity analysis 1: compare IDW vs. ordinary kriging vs. universal kriging for ambient surfaces", "priority": "high", "component": "fall_pipeline"},
+        {"task": "Sensitivity analysis 2: vary indoor/outdoor weighting schemes", "priority": "high", "component": "fall_pipeline"},
+        {"task": "Compare IEI to single-pollutant exposure measures (correlation, rank agreement)", "priority": "medium", "component": "fall_pipeline"},
+        {"task": "Begin manuscript Introduction section", "priority": "medium", "component": "fall_manuscript"},
+        {"task": "If IRB approved: test Time-Activity Supplement end-to-end in REDCap dev, verify all calc fields and branching", "priority": "high", "component": null}
+      ],
+      "key_decisions": ["Select preferred spatial interpolation method based on LOOCV results"],
+      "deliverables": []
+    },
+    {
+      "week": 9,
+      "start": "2026-10-26",
+      "end": "2026-11-01",
+      "phase": "Fall Semester",
+      "title": "Multi-Household Logic & Manuscript Writing",
+      "meeting": true,
+      "meeting_agenda": "Sensitivity analysis results, manuscript outline review, multi-household weighting approach",
+      "tasks": [
+        {"task": "Implement multi-household time-weighting: split home microenvironments by nights_primary/nights_secondary", "priority": "high", "component": "fall_pipeline"},
+        {"task": "Write manuscript Methods section: IEI construction, spatial methods, indoor modeling, time-weighting, sensitivity framework", "priority": "high", "component": "fall_manuscript"},
+        {"task": "Document all pipeline code with inline comments and README", "priority": "medium", "component": "fall_pipeline"},
+        {"task": "If approved: deploy Time-Activity Supplement to production, begin fielding to enrolled participants", "priority": "high", "component": null},
+        {"task": "Identify target journal (e.g., Environmental Health Perspectives, Environment International) and format requirements", "priority": "medium", "component": "fall_manuscript"}
+      ],
+      "key_decisions": ["Select target journal for IEI methods manuscript"],
+      "deliverables": []
+    },
+    {
+      "week": 10,
+      "start": "2026-11-02",
+      "end": "2026-11-08",
+      "phase": "Fall Semester",
+      "title": "Manuscript Draft Due",
+      "meeting": true,
+      "meeting_agenda": "Review manuscript draft, discuss preliminary results, plan outcome analysis approach",
+      "tasks": [
+        {"task": "Finalize and submit IEI manuscript draft (Introduction + Methods, formatted for target journal)", "priority": "critical", "component": "fall_manuscript"},
+        {"task": "Push complete IEI pipeline to GitHub with documentation, sample outputs, and reproducibility instructions", "priority": "high", "component": "fall_pipeline"},
+        {"task": "Begin exploratory bivariate analyses: IEI scores vs. exacerbation counts (descriptive statistics, scatter plots)", "priority": "medium", "component": null}
+      ],
+      "key_decisions": [],
+      "deliverables": ["IEI Manuscript Draft (20% of Fall grade)"]
+    },
+    {
+      "week": 11,
+      "start": "2026-11-09",
+      "end": "2026-11-15",
+      "phase": "Fall Semester",
+      "title": "Outcome Analysis Setup & Manuscript Revision",
+      "meeting": true,
+      "meeting_agenda": "Manuscript feedback discussion, outcome analysis methodology review",
+      "tasks": [
+        {"task": "Set up Poisson/negative binomial regression framework for monthly exacerbation counts", "priority": "high", "component": null},
+        {"task": "Set up linear mixed model framework for repeated C-ACT scores", "priority": "high", "component": null},
+        {"task": "Incorporate committee feedback on manuscript draft", "priority": "high", "component": "fall_manuscript"},
+        {"task": "Run preliminary adjusted models with available covariates (income, education, insurance, housing tenure, food insecurity)", "priority": "medium", "component": null}
+      ],
+      "key_decisions": ["Finalize covariate set for adjusted models"],
+      "deliverables": []
+    },
+    {
+      "week": 12,
+      "start": "2026-11-16",
+      "end": "2026-11-22",
+      "phase": "Fall Semester",
+      "title": "Preliminary Results & Presentation Prep",
+      "meeting": true,
+      "meeting_agenda": "Preliminary outcome results, presentation outline review",
+      "tasks": [
+        {"task": "Run preliminary outcome analyses and document results (even if sample size is limited)", "priority": "high", "component": null},
+        {"task": "Begin GBTM exploration: fit trajectory models with 2-4 groups on available wheezing data", "priority": "medium", "component": null},
+        {"task": "Start building Fall Progress Presentation slides", "priority": "high", "component": "fall_presentation"},
+        {"task": "Outline spring semester plan based on fall progress and remaining work", "priority": "medium", "component": "fall_presentation"}
+      ],
+      "key_decisions": [],
+      "deliverables": []
+    },
+    {
+      "week": 13,
+      "start": "2026-11-23",
+      "end": "2026-11-29",
+      "phase": "Fall Semester",
+      "title": "Thanksgiving Week / Presentation Finalization",
+      "meeting": false,
+      "meeting_agenda": null,
+      "tasks": [
+        {"task": "Finalize Fall Progress Presentation: IEI development summary, validation results, preliminary outcome methods, spring plan", "priority": "high", "component": "fall_presentation"},
+        {"task": "Practice presentation timing (target 20-25 minutes + Q&A)", "priority": "medium", "component": "fall_presentation"},
+        {"task": "Prepare supplementary materials for committee review", "priority": "low", "component": "fall_presentation"}
+      ],
+      "key_decisions": [],
+      "deliverables": []
+    },
+    {
+      "week": 14,
+      "start": "2026-11-30",
+      "end": "2026-12-04",
+      "phase": "Fall Semester",
+      "title": "Fall Progress Presentation",
+      "meeting": true,
+      "meeting_agenda": "Deliver Fall Progress Presentation to thesis committee",
+      "tasks": [
+        {"task": "Deliver Fall Progress Presentation to thesis committee", "priority": "critical", "component": "fall_presentation"},
+        {"task": "Document committee feedback and action items for spring", "priority": "high", "component": "fall_meetings"},
+        {"task": "Create spring semester detailed task plan based on feedback", "priority": "medium", "component": null}
+      ],
+      "key_decisions": ["Confirm spring semester meeting cadence with Dr. Brown"],
+      "deliverables": ["Fall Progress Presentation (15% of Fall grade)"]
+    },
+    {
+      "week": 15,
+      "start": "2026-12-07",
+      "end": "2026-12-11",
+      "phase": "Fall Semester",
+      "title": "Finals Week / Fall Wrap-Up",
+      "meeting": false,
+      "meeting_agenda": null,
+      "tasks": [
+        {"task": "Incorporate presentation feedback into pipeline and manuscript", "priority": "medium", "component": null},
+        {"task": "Final GitHub push with end-of-semester documentation", "priority": "medium", "component": "fall_pipeline"},
+        {"task": "Archive fall semester deliverables", "priority": "low", "component": null}
+      ],
+      "key_decisions": [],
+      "deliverables": []
+    },
+    {
+      "week": 16,
+      "start": "2026-12-14",
+      "end": "2027-01-11",
+      "phase": "Winter Break",
+      "title": "Winter Break (4 weeks)",
+      "meeting": false,
+      "meeting_agenda": null,
+      "tasks": [
+        {"task": "Continue reading: GBTM methodology papers, pediatric asthma phenotyping literature", "priority": "low", "component": null},
+        {"task": "Review and clean any Time-Activity Supplement responses received so far", "priority": "low", "component": null},
+        {"task": "Outline health outcome analysis pipeline structure", "priority": "low", "component": null},
+        {"task": "Rest and recharge", "priority": "high", "component": null}
+      ],
+      "key_decisions": [],
+      "deliverables": []
+    },
+    {
+      "week": 17,
+      "start": "2027-01-13",
+      "end": "2027-01-18",
+      "phase": "Spring Semester",
+      "title": "Spring Kickoff",
+      "meeting": true,
+      "meeting_agenda": "Review fall progress, discuss spring plan, set meeting cadence, review Time-Activity Supplement data collected so far",
+      "tasks": [
+        {"task": "Review all fall pipeline outputs and committee feedback", "priority": "high", "component": null},
+        {"task": "Inventory available Time-Activity Supplement responses; assess sample size for participant-level time-weighting", "priority": "high", "component": "spring_pipeline_draft"},
+        {"task": "If sufficient TA data: recalculate IEI using participant-reported time-activity instead of literature defaults", "priority": "high", "component": "spring_pipeline_draft"},
+        {"task": "Plan health outcome analysis strategy with updated data", "priority": "high", "component": "spring_pipeline_draft"}
+      ],
+      "key_decisions": ["Determine if enough TA supplement data exists to replace literature-based assumptions"],
+      "deliverables": []
+    },
+    {
+      "week": 18,
+      "start": "2027-01-19",
+      "end": "2027-01-25",
+      "phase": "Spring Semester",
+      "title": "Exacerbation Count Modeling",
+      "meeting": true,
+      "meeting_agenda": "Present updated IEI with any participant TA data, exacerbation modeling approach",
+      "tasks": [
+        {"task": "Build Poisson/negative binomial regression pipeline for monthly exacerbation counts with IEI as primary predictor", "priority": "high", "component": "spring_pipeline_draft"},
+        {"task": "Implement covariate adjustment: household income, parental education, insurance status, housing tenure, food insecurity", "priority": "high", "component": "spring_pipeline_draft"},
+        {"task": "Test for overdispersion; select Poisson vs. negative binomial", "priority": "medium", "component": "spring_pipeline_draft"},
+        {"task": "Revise IEI manuscript Introduction based on committee feedback", "priority": "medium", "component": "spring_manuscript"}
+      ],
+      "key_decisions": ["Poisson vs. negative binomial model selection"],
+      "deliverables": []
+    },
+    {
+      "week": 19,
+      "start": "2027-01-26",
+      "end": "2027-02-01",
+      "phase": "Spring Semester",
+      "title": "C-ACT Score Analysis",
+      "meeting": true,
+      "meeting_agenda": "Exacerbation model results, C-ACT analysis plan",
+      "tasks": [
+        {"task": "Build linear mixed model pipeline for repeated C-ACT scores (random intercept for participant, IEI as fixed effect)", "priority": "high", "component": "spring_pipeline_draft"},
+        {"task": "Handle missing data strategy (multiple imputation vs. complete case analysis)", "priority": "high", "component": "spring_pipeline_draft"},
+        {"task": "Run sensitivity checks on model specifications (random slope vs. intercept only)", "priority": "medium", "component": "spring_pipeline_draft"}
+      ],
+      "key_decisions": ["Missing data handling strategy"],
+      "deliverables": []
+    },
+    {
+      "week": 20,
+      "start": "2027-02-02",
+      "end": "2027-02-08",
+      "phase": "Spring Semester",
+      "title": "GBTM Phenotyping",
+      "meeting": true,
+      "meeting_agenda": "C-ACT results, GBTM methodology review",
+      "tasks": [
+        {"task": "Run Group-Based Trajectory Modeling for wheezing phenotype identification (test 2, 3, 4 group solutions)", "priority": "high", "component": "spring_pipeline_draft"},
+        {"task": "Model selection: BIC, entropy, average posterior probability, group size criteria", "priority": "high", "component": "spring_pipeline_draft"},
+        {"task": "Characterize trajectory groups descriptively", "priority": "medium", "component": "spring_pipeline_draft"}
+      ],
+      "key_decisions": ["Number of trajectory groups for GBTM"],
+      "deliverables": []
+    },
+    {
+      "week": 21,
+      "start": "2027-02-09",
+      "end": "2027-02-15",
+      "phase": "Spring Semester",
+      "title": "IEI as Trajectory Predictor",
+      "meeting": true,
+      "meeting_agenda": "GBTM results, IEI-trajectory associations, overall analysis progress",
+      "tasks": [
+        {"task": "Test IEI as predictor of trajectory group membership (multinomial logistic regression)", "priority": "high", "component": "spring_pipeline_draft"},
+        {"task": "Run subgroup analyses by demographics and housing type", "priority": "medium", "component": "spring_pipeline_draft"},
+        {"task": "Begin documenting all pipeline code for reproducibility (comments, README, sample data)", "priority": "medium", "component": "spring_pipeline_draft"}
+      ],
+      "key_decisions": [],
+      "deliverables": []
+    },
+    {
+      "week": 22,
+      "start": "2027-02-16",
+      "end": "2027-02-22",
+      "phase": "Spring Semester",
+      "title": "Sensitivity Checks & Pipeline Documentation",
+      "meeting": true,
+      "meeting_agenda": "Complete outcome analysis results review, sensitivity analysis plan",
+      "tasks": [
+        {"task": "Run comprehensive sensitivity analyses across all three outcome models", "priority": "high", "component": "spring_pipeline_draft"},
+        {"task": "Sensitivity on IEI construction: re-run outcomes with different IEI weighting schemes", "priority": "high", "component": "spring_pipeline_draft"},
+        {"task": "Document all pipeline decisions, assumptions, and limitations", "priority": "high", "component": "spring_pipeline_draft"},
+        {"task": "Prepare pipeline draft for submission", "priority": "medium", "component": "spring_pipeline_draft"}
+      ],
+      "key_decisions": [],
+      "deliverables": []
+    },
+    {
+      "week": 23,
+      "start": "2027-02-23",
+      "end": "2027-03-01",
+      "phase": "Spring Semester",
+      "title": "Health Outcome Pipeline Draft Due",
+      "meeting": true,
+      "meeting_agenda": "Submit pipeline draft, discuss results interpretation, manuscript revision plan",
+      "tasks": [
+        {"task": "Submit Health Outcome Analysis Pipeline Draft: documented code, sample outputs, sensitivity results", "priority": "critical", "component": "spring_pipeline_draft"},
+        {"task": "Begin revising IEI manuscript Methods with final pipeline details", "priority": "high", "component": "spring_manuscript"},
+        {"task": "Add Results section to manuscript with preliminary outcome findings (with sample size caveats)", "priority": "high", "component": "spring_manuscript"}
+      ],
+      "key_decisions": [],
+      "deliverables": ["Health Outcome Pipeline Draft (10% of Spring grade)"]
+    },
+    {
+      "week": 24,
+      "start": "2027-03-02",
+      "end": "2027-03-08",
+      "phase": "Spring Semester",
+      "title": "Manuscript Revision Push",
+      "meeting": true,
+      "meeting_agenda": "Pipeline feedback, manuscript revision progress",
+      "tasks": [
+        {"task": "Incorporate committee feedback on pipeline draft", "priority": "high", "component": "spring_final_pipeline"},
+        {"task": "Write manuscript Discussion section: interpret IEI in context of existing literature, state limitations (sample size, data availability, seasonal generalizability)", "priority": "high", "component": "spring_manuscript"},
+        {"task": "Write manuscript Abstract and Conclusion", "priority": "high", "component": "spring_manuscript"}
+      ],
+      "key_decisions": [],
+      "deliverables": []
+    },
+    {
+      "week": 25,
+      "start": "2027-03-09",
+      "end": "2027-03-15",
+      "phase": "Spring Semester",
+      "title": "Spring Break / Manuscript Polish",
+      "meeting": false,
+      "meeting_agenda": null,
+      "tasks": [
+        {"task": "Continue manuscript revision (use break for uninterrupted writing time)", "priority": "high", "component": "spring_manuscript"},
+        {"task": "Format manuscript per target journal submission guidelines", "priority": "medium", "component": "spring_manuscript"},
+        {"task": "Begin brainstorming poster layout and key figures", "priority": "low", "component": "spring_poster"}
+      ],
+      "key_decisions": [],
+      "deliverables": []
+    },
+    {
+      "week": 26,
+      "start": "2027-03-16",
+      "end": "2027-03-22",
+      "phase": "Spring Semester",
+      "title": "Final Manuscript Push",
+      "meeting": true,
+      "meeting_agenda": "Near-final manuscript review, poster planning",
+      "tasks": [
+        {"task": "Final manuscript revisions incorporating all committee feedback", "priority": "high", "component": "spring_manuscript"},
+        {"task": "Prepare figures and tables for journal submission", "priority": "high", "component": "spring_manuscript"},
+        {"task": "Begin research poster design: key findings, IEI methodology figure, results summary", "priority": "medium", "component": "spring_poster"}
+      ],
+      "key_decisions": [],
+      "deliverables": []
+    },
+    {
+      "week": 27,
+      "start": "2027-03-23",
+      "end": "2027-03-29",
+      "phase": "Spring Semester",
+      "title": "Manuscript Submission Prep",
+      "meeting": true,
+      "meeting_agenda": "Final manuscript review before committee submission, poster draft",
+      "tasks": [
+        {"task": "Submit finalized manuscript to committee for final review", "priority": "high", "component": "spring_manuscript"},
+        {"task": "Finalize health outcome pipeline with committee revisions", "priority": "high", "component": "spring_final_pipeline"},
+        {"task": "Continue poster design with preliminary data visualizations", "priority": "high", "component": "spring_poster"}
+      ],
+      "key_decisions": ["Committee decision on whether to submit manuscript to journal before or after full cohort data"],
+      "deliverables": []
+    },
+    {
+      "week": 28,
+      "start": "2027-03-30",
+      "end": "2027-04-01",
+      "phase": "Spring Semester",
+      "title": "IEI Manuscript Finalization Due",
+      "meeting": true,
+      "meeting_agenda": "Confirm manuscript finalization, pipeline revisions, poster feedback",
+      "tasks": [
+        {"task": "Submit final IEI manuscript to committee (Final Thesis Draft)", "priority": "critical", "component": "spring_manuscript"},
+        {"task": "If committee approves: submit to target journal for peer review", "priority": "high", "component": "spring_manuscript"},
+        {"task": "Incorporate feedback into poster", "priority": "high", "component": "spring_poster"}
+      ],
+      "key_decisions": [],
+      "deliverables": ["IEI Manuscript Finalization / Final Thesis Draft (20% of Spring grade)"]
+    },
+    {
+      "week": 29,
+      "start": "2027-04-02",
+      "end": "2027-04-08",
+      "phase": "Spring Semester",
+      "title": "Poster Finalization & Pipeline Final Push",
+      "meeting": true,
+      "meeting_agenda": "Poster review, final pipeline status, defense preparation",
+      "tasks": [
+        {"task": "Finalize research poster for Honors Summit", "priority": "high", "component": "spring_poster"},
+        {"task": "Final revisions to health outcome analysis pipeline", "priority": "high", "component": "spring_final_pipeline"},
+        {"task": "Finalize GitHub repository: complete documentation, sample outputs, reproducibility instructions, LICENSE", "priority": "high", "component": "spring_final_pipeline"}
+      ],
+      "key_decisions": [],
+      "deliverables": []
+    },
+    {
+      "week": 30,
+      "start": "2027-04-09",
+      "end": "2027-04-15",
+      "phase": "Spring Semester",
+      "title": "Final Pipeline Due / Poster Presentation",
+      "meeting": true,
+      "meeting_agenda": "Final pipeline submission, poster presentation prep, defense scheduling",
+      "tasks": [
+        {"task": "Submit Final Health Outcome Analysis Pipeline (open-access GitHub with final code, outputs, documentation)", "priority": "critical", "component": "spring_final_pipeline"},
+        {"task": "Submit research poster final version", "priority": "critical", "component": "spring_poster"},
+        {"task": "Present poster at Rollins Honors Summit (if scheduled this week)", "priority": "critical", "component": "spring_poster"},
+        {"task": "Begin thesis defense preparation: outline 25-30 min presentation", "priority": "high", "component": "spring_defense"}
+      ],
+      "key_decisions": ["Confirm exact defense date with committee"],
+      "deliverables": ["Final Health Outcome Analysis Pipeline (15% of Spring grade)", "Research Poster (20% of Spring grade)"]
+    },
+    {
+      "week": 31,
+      "start": "2027-04-16",
+      "end": "2027-04-22",
+      "phase": "Spring Semester",
+      "title": "Defense Preparation",
+      "meeting": true,
+      "meeting_agenda": "Defense dry run, final feedback",
+      "tasks": [
+        {"task": "Build defense presentation: IEI rationale, methods, results, limitations, future directions (NCI, full cohort analysis)", "priority": "critical", "component": "spring_defense"},
+        {"task": "Practice defense presentation with timing (25-30 min + Q&A)", "priority": "high", "component": "spring_defense"},
+        {"task": "Prepare for anticipated committee questions (data limitations, generalizability, methodological choices)", "priority": "high", "component": "spring_defense"},
+        {"task": "Present poster at Honors Summit (if not done in Week 30)", "priority": "critical", "component": "spring_poster"}
+      ],
+      "key_decisions": [],
+      "deliverables": []
+    },
+    {
+      "week": 32,
+      "start": "2027-04-23",
+      "end": "2027-04-28",
+      "phase": "Spring Semester",
+      "title": "Thesis Defense",
+      "meeting": false,
+      "meeting_agenda": null,
+      "tasks": [
+        {"task": "Deliver public oral thesis defense (25-30 min presentation + committee Q&A)", "priority": "critical", "component": "spring_defense"},
+        {"task": "Document committee feedback and required revisions", "priority": "high", "component": "spring_defense"},
+        {"task": "Begin post-defense revisions", "priority": "high", "component": "spring_defense"}
+      ],
+      "key_decisions": [],
+      "deliverables": ["Thesis Defense (20% of Spring grade)"]
+    },
+    {
+      "week": 33,
+      "start": "2027-04-29",
+      "end": "2027-05-01",
+      "phase": "Spring Semester",
+      "title": "Final Submission",
+      "meeting": false,
+      "meeting_agenda": null,
+      "tasks": [
+        {"task": "Complete post-defense revisions", "priority": "critical", "component": "spring_defense"},
+        {"task": "Submit final thesis to Rollins Honors Program by May 1st", "priority": "critical", "component": "spring_defense"},
+        {"task": "Archive all project files, code, and data", "priority": "medium", "component": null}
+      ],
+      "key_decisions": [],
+      "deliverables": ["Final Thesis Submission to Rollins Honors Program"]
+    }
+  ]
+}

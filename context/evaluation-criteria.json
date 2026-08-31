@@ -1,0 +1,110 @@
+{
+  "fall_2026": {
+    "course": "HON 498 HD",
+    "description": "Initial development, validation, and deployment of the IEI using existing BREATHE-CC participants and simulation data.",
+    "components": [
+      {
+        "id": "fall_annot_bib",
+        "name": "IEI Annotated Bibliography",
+        "weight": 15,
+        "due_date": "2026-09-15",
+        "description": "Minimum 25 sources annotated with relevance to the Integrated Exposure Index: time-weighted exposure models, indoor/outdoor pollutant integration, spatial interpolation methods.",
+        "status": "not_started"
+      },
+      {
+        "id": "fall_lit_review",
+        "name": "IEI Literature Review",
+        "weight": 15,
+        "due_date": "2026-10-18",
+        "description": "Narrative review of environmental exposure science literature supporting the IEI construct: time-activity patterns, multi-pollutant indices, exposure measurement in existing cohorts.",
+        "status": "not_started"
+      },
+      {
+        "id": "fall_pipeline",
+        "name": "IEI Data Analysis Pipeline & GitHub Repository",
+        "weight": 20,
+        "due_date": null,
+        "description": "Functional, documented IEI construction pipeline: outdoor data integration (TCEQ/EPA), indoor survey scoring, time-weighting algorithm, composite scoring. Version-controlled on GitHub.",
+        "status": "not_started"
+      },
+      {
+        "id": "fall_manuscript",
+        "name": "IEI Manuscript Draft",
+        "weight": 20,
+        "due_date": "2026-11-08",
+        "description": "Initial draft of the IEI methods paper: Introduction and Methods sections. Journal-formatted draft with a clear journal target and list of backup journals.",
+        "status": "not_started"
+      },
+      {
+        "id": "fall_meetings",
+        "name": "Meeting Attendance & Participation",
+        "weight": 15,
+        "due_date": null,
+        "description": "Consistent attendance per cadence schedule. Prepared agendas, responsiveness to sponsor feedback, documented action items. Effective updates to other committee members.",
+        "status": "ongoing"
+      },
+      {
+        "id": "fall_presentation",
+        "name": "Fall Progress Presentation",
+        "weight": 15,
+        "due_date": "2026-11-30",
+        "description": "Presentation to thesis committee summarizing IEI development, validation results, preliminary outcome association methods, and spring semester plan. Delivered 1-2 weeks before fall final exams begin (Dec 7, 2026).",
+        "status": "not_started"
+      }
+    ]
+  },
+  "spring_2027": {
+    "course": "HON 499 HD",
+    "description": "Completion of IEI Methods Manuscript, health outcome analysis pipeline (IEI-asthma regression models, GBTM phenotyping, sensitivity checks on available data), research poster, and public defense.",
+    "components": [
+      {
+        "id": "spring_pipeline_draft",
+        "name": "Health Outcome Analysis Pipeline Draft",
+        "weight": 10,
+        "due_date": "2027-03-01",
+        "description": "Draft of code and outputs for IEI-asthma outcome analysis: bivariate and adjusted regression models (Poisson/negative binomial for exacerbations, linear mixed models for C-ACT, GBTM for wheezing phenotypes). Sensitivity checks and subgroup analyses. Reproducible, documented pipeline designed for rerunning on finalized BREATHE-CC cohort.",
+        "status": "not_started"
+      },
+      {
+        "id": "spring_manuscript",
+        "name": "IEI Manuscript Finalization (Final Thesis Draft)",
+        "weight": 20,
+        "due_date": "2027-04-01",
+        "description": "Journal-ready IEI methods manuscript formatted per target journal guidelines. Incorporates all committee feedback and analysis results. Submitted as final version to committee.",
+        "status": "not_started"
+      },
+      {
+        "id": "spring_final_pipeline",
+        "name": "Final Health Outcome Analysis Pipeline",
+        "weight": 15,
+        "due_date": "2027-04-15",
+        "description": "Final analysis pipeline product incorporating feedback and suggested revisions by committee members. Open-access GitHub Repository with final code, sample outputs, and clearly documented rationale behind all analyses.",
+        "status": "not_started"
+      },
+      {
+        "id": "spring_poster",
+        "name": "Research Poster",
+        "weight": 20,
+        "due_date": "2027-04-15",
+        "description": "Conference-style research poster summarizing IEI development, validation, and preliminary health outcome findings based on available BREATHE-CC data. Presented at the Rollins Honors Summit in April 2027.",
+        "status": "not_started"
+      },
+      {
+        "id": "spring_meetings",
+        "name": "Meeting Attendance & Participation",
+        "weight": 15,
+        "due_date": null,
+        "description": "Continued adherence to meeting cadence; proactive communication; timely incorporation of feedback.",
+        "status": "ongoing"
+      },
+      {
+        "id": "spring_defense",
+        "name": "Thesis Defense & Final Submission",
+        "weight": 20,
+        "due_date": "2027-04-25",
+        "description": "Public oral defense including 25-30 min presentation and committee Q&A by the week before spring final exams begin (at the latest). Post-defense revisions and final submission to Rollins Honors Program by May 1st, 2027.",
+        "status": "not_started"
+      }
+    ]
+  }
+}
