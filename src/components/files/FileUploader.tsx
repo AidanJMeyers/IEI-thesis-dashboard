@@ -125,7 +125,16 @@ export function FileUploader({
   );
 }
 
-export function FileCard({ file, onDelete }: { file: StoredFile; onDelete?: () => void }) {
+export function FileCard({
+  file,
+  onDelete,
+  version,
+}: {
+  file: StoredFile;
+  onDelete?: () => void;
+  /** 1-based version number, shown only when more than one version exists. */
+  version?: number;
+}) {
   const { getFileUrl } = useFiles();
   const [busy, setBusy] = React.useState(false);
 
@@ -145,8 +154,15 @@ export function FileCard({ file, onDelete }: { file: StoredFile; onDelete?: () =
         <FileText className="h-4 w-4" />
       </span>
       <div className="min-w-0 flex-1">
-        <p className="truncate text-sm font-medium text-ink" title={file.file_name}>
-          {file.file_name}
+        <p className="flex items-center gap-1.5 text-sm font-medium text-ink">
+          <span className="truncate" title={file.file_name}>
+            {file.file_name}
+          </span>
+          {version ? (
+            <span className="shrink-0 rounded bg-brand-50 px-1.5 text-[11px] tabular-nums text-brand-800">
+              v{version}
+            </span>
+          ) : null}
         </p>
         <p className="text-xs text-muted-foreground">
           {formatBytes(file.file_size)}
@@ -174,6 +190,28 @@ export function FileCard({ file, onDelete }: { file: StoredFile; onDelete?: () =
   );
 }
 
+/**
+ * Versioning by filename. Re-uploading `IEI_Manuscript.docx` does not overwrite
+ * the previous one — both are kept, the newest is shown, and the older ones
+ * collapse into a disclosure. Committee feedback often refers to "the draft you
+ * sent last week", so the older version has to stay reachable.
+ */
+function groupVersions(files: StoredFile[]) {
+  const byName = new Map<string, StoredFile[]>();
+  for (const f of files) {
+    const key = `${f.evaluation_component_id ?? f.task_id ?? 'none'}::${f.file_name}`;
+    const list = byName.get(key);
+    if (list) list.push(f);
+    else byName.set(key, [f]);
+  }
+  return Array.from(byName.values())
+    .map((versions) => {
+      const sorted = [...versions].sort((a, b) => b.uploaded_at.localeCompare(a.uploaded_at));
+      return { latest: sorted[0], older: sorted.slice(1) };
+    })
+    .sort((a, b) => b.latest.uploaded_at.localeCompare(a.latest.uploaded_at));
+}
+
 export function FileList({
   files,
   emptyTitle = 'No files uploaded yet',
@@ -191,10 +229,37 @@ export function FileList({
     return <EmptyState icon={FileText} title={emptyTitle} description={emptyDescription} />;
   }
 
+  const groups = groupVersions(files);
+
   return (
     <div className="space-y-2">
-      {files.map((f) => (
-        <FileCard key={f.id} file={f} onDelete={readOnly ? undefined : () => void deleteFile(f.id)} />
+      {groups.map(({ latest, older }) => (
+        <div key={latest.id}>
+          <FileCard
+            file={latest}
+            version={older.length ? older.length + 1 : undefined}
+            onDelete={readOnly ? undefined : () => void deleteFile(latest.id)}
+          />
+
+          {older.length ? (
+            <details className="group mt-1 pl-3">
+              <summary className="cursor-pointer list-none text-xs font-medium text-muted-foreground hover:text-brand-800">
+                {older.length} earlier {older.length === 1 ? 'version' : 'versions'}
+                <span className="ml-1 inline-block transition-transform group-open:rotate-90">›</span>
+              </summary>
+              <div className="mt-1.5 space-y-1.5 border-l border-hairline/60 pl-3">
+                {older.map((f, i) => (
+                  <FileCard
+                    key={f.id}
+                    file={f}
+                    version={older.length - i}
+                    onDelete={readOnly ? undefined : () => void deleteFile(f.id)}
+                  />
+                ))}
+              </div>
+            </details>
+          ) : null}
+        </div>
       ))}
     </div>
   );

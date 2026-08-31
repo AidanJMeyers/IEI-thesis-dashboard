@@ -1,23 +1,23 @@
 'use client';
 
 import * as React from 'react';
-import {
-  Bar,
-  BarChart,
-  Cell,
-  ResponsiveContainer,
-  Tooltip,
-  XAxis,
-  YAxis,
-} from 'recharts';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Donut } from '@/components/ui/progress';
 import { Select } from '@/components/ui/form';
 import { useEvaluation } from '@/hooks/useDashboard';
 import type { EvaluationComponent, Semester } from '@/lib/types';
-import { SEMESTER_LABEL } from '@/lib/utils';
+import { cn, SEMESTER_LABEL } from '@/lib/utils';
 
-/** Weighted completion donut plus a per-component contribution bar chart. */
+/**
+ * Weighted completion: a donut for the semester total, then one row per
+ * component showing weighted points earned against points available.
+ *
+ * Built with CSS rather than a charting library. Each row is a single bar whose
+ * width is its share of the largest component weight, filled by the proportion
+ * earned — so the bars are directly comparable and the arithmetic is visible in
+ * the markup. A stacked bar chart added a 100 kB dependency to say the same
+ * thing less clearly.
+ */
 export function ProgressChart({
   semester,
   components,
@@ -28,23 +28,20 @@ export function ProgressChart({
   const { progressFor, fallProgress, springProgress } = useEvaluation();
   const progress = semester === 'fall_2026' ? fallProgress : springProgress;
 
-  const data = components.map((c) => {
-    const p = progressFor(c.id).percent;
-    return {
-      name: c.name.replace(/^(IEI|Health Outcome|Final Health Outcome)\s+/, ''),
-      full: c.name,
-      weight: c.weight,
-      earned: Math.round((c.weight * p) / 100 * 10) / 10,
-      percent: p,
-    };
+  const rows = components.map((c) => {
+    const percent = progressFor(c.id).percent;
+    const earned = Math.round(((c.weight * percent) / 100) * 10) / 10;
+    return { component: c, percent, earned };
   });
+
+  const maxWeight = Math.max(...rows.map((r) => r.component.weight), 1);
 
   return (
     <Card>
       <CardHeader className="pb-2">
         <CardTitle>{SEMESTER_LABEL[semester]} weighted progress</CardTitle>
         <p className="text-xs text-muted-foreground">
-          Each bar shows weighted points earned against the points available.
+          Bar length is the component&rsquo;s weight; the filled portion is what is banked.
         </p>
       </CardHeader>
 
@@ -57,58 +54,34 @@ export function ProgressChart({
             />
           </div>
 
-          <div className="h-[220px] w-full min-w-0 flex-1">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={data} layout="vertical" margin={{ left: 4, right: 16, top: 4, bottom: 4 }}>
-                <XAxis
-                  type="number"
-                  domain={[0, Math.max(...data.map((d) => d.weight), 20)]}
-                  tick={{ fontSize: 11, fill: '#64748b' }}
-                  axisLine={false}
-                  tickLine={false}
-                  unit="%"
-                />
-                <YAxis
-                  type="category"
-                  dataKey="name"
-                  width={132}
-                  tick={{ fontSize: 11, fill: '#333333' }}
-                  axisLine={false}
-                  tickLine={false}
-                />
-                <Tooltip
-                  cursor={{ fill: '#F5F7F9' }}
-                  contentStyle={{
-                    borderRadius: 8,
-                    border: '1px solid #CCCCCC',
-                    fontSize: 12,
-                    boxShadow: '0 4px 14px rgba(33,60,78,0.10)',
-                  }}
-                  formatter={(value: number, key: string, entry) => {
-                    const d = entry.payload as (typeof data)[number];
-                    return key === 'earned'
-                      ? [`${value} of ${d.weight} pts (${d.percent}%)`, 'Earned']
-                      : [`${value} pts`, 'Remaining'];
-                  }}
-                  labelFormatter={(_, payload) =>
-                    (payload?.[0]?.payload as (typeof data)[number] | undefined)?.full ?? ''
-                  }
-                />
-                <Bar dataKey="earned" stackId="w" radius={[0, 0, 0, 0]}>
-                  {data.map((d) => (
-                    <Cell key={d.full} fill={d.percent === 100 ? '#22c55e' : '#2E6B8A'} />
-                  ))}
-                </Bar>
-                <Bar
-                  dataKey={(d: (typeof data)[number]) => Math.round((d.weight - d.earned) * 10) / 10}
-                  name="remaining"
-                  stackId="w"
-                  fill="#e3ebf0"
-                  radius={[0, 4, 4, 0]}
-                />
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
+          <ul className="w-full min-w-0 flex-1 space-y-2.5">
+            {rows.map(({ component, percent, earned }) => (
+              <li key={component.id} className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-x-3 gap-y-1">
+                <span className="truncate text-sm text-ink" title={component.name}>
+                  {component.name}
+                </span>
+                <span className="text-xs tabular-nums text-muted-foreground">
+                  <span className="font-medium text-brand-800">{earned}</span> / {component.weight} pts
+                  <span className="ml-1.5 text-slate-400">({percent}%)</span>
+                </span>
+
+                <div className="col-span-2 flex h-2.5 w-full items-center">
+                  <div
+                    className="h-full overflow-hidden rounded-full bg-brand-100"
+                    style={{ width: `${(component.weight / maxWeight) * 100}%` }}
+                  >
+                    <div
+                      className={cn(
+                        'h-full rounded-full transition-[width] duration-500',
+                        percent === 100 ? 'bg-success' : 'bg-accent',
+                      )}
+                      style={{ width: `${percent}%` }}
+                    />
+                  </div>
+                </div>
+              </li>
+            ))}
+          </ul>
         </div>
       </CardContent>
     </Card>
@@ -116,17 +89,14 @@ export function ProgressChart({
 }
 
 /**
- * "If I finish X at Y quality, where does that land?" — lets Aidan and the
- * committee see the arithmetic instead of guessing at it.
+ * "If I finish everything outstanding at X quality, where does that land?" —
+ * shows the arithmetic instead of leaving it to be guessed at.
  */
 export function GradeSimulator({ components }: { components: EvaluationComponent[] }) {
   const { progressFor } = useEvaluation();
   const [quality, setQuality] = React.useState(90);
 
-  const rows = components.map((c) => {
-    const current = progressFor(c.id).percent;
-    return { component: c, current };
-  });
+  const rows = components.map((c) => ({ component: c, current: progressFor(c.id).percent }));
 
   const earnedNow = rows.reduce((sum, r) => sum + (r.component.weight * r.current) / 100, 0);
   const totalWeight = rows.reduce((sum, r) => sum + r.component.weight, 0);
@@ -135,7 +105,17 @@ export function GradeSimulator({ components }: { components: EvaluationComponent
   const projectedPct = totalWeight ? Math.round((projected / totalWeight) * 100) : 0;
 
   const letter =
-    projectedPct >= 93 ? 'A' : projectedPct >= 90 ? 'A−' : projectedPct >= 87 ? 'B+' : projectedPct >= 83 ? 'B' : projectedPct >= 80 ? 'B−' : 'C or below';
+    projectedPct >= 93
+      ? 'A'
+      : projectedPct >= 90
+        ? 'A−'
+        : projectedPct >= 87
+          ? 'B+'
+          : projectedPct >= 83
+            ? 'B'
+            : projectedPct >= 80
+              ? 'B−'
+              : 'C or below';
 
   return (
     <Card>
@@ -168,7 +148,8 @@ export function GradeSimulator({ components }: { components: EvaluationComponent
           <div className="rounded-md bg-surface px-4 py-2.5">
             <p className="text-xs uppercase tracking-wide text-muted-foreground">Projected</p>
             <p className="text-xl font-semibold tabular-nums text-brand-800">
-              {projectedPct}% <span className="text-sm font-normal text-muted-foreground">({letter})</span>
+              {projectedPct}%{' '}
+              <span className="text-sm font-normal text-muted-foreground">({letter})</span>
             </p>
           </div>
 
@@ -197,7 +178,7 @@ export function GradeSimulator({ components }: { components: EvaluationComponent
                   </td>
                   <td className="py-1.5 text-right tabular-nums text-muted-foreground">{current}%</td>
                   <td className="py-1.5 text-right font-medium tabular-nums text-brand-800">
-                    {Math.round((component.weight * current) / 100 * 10) / 10}
+                    {Math.round(((component.weight * current) / 100) * 10) / 10}
                   </td>
                 </tr>
               ))}

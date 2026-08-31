@@ -176,7 +176,7 @@ cannot drift apart — and every page is written against one store interface rat
 | `/weeks/[n]` | One week: tasks, meeting agenda and notes, key decisions, deliverables |
 | `/tasks` | Kanban board with drag-and-drop and filters |
 | `/evaluation` | The 12 graded components, weighted progress charts, grade simulator |
-| `/files` | File library and link directory |
+| `/files` | File library (re-uploading a filename keeps both as versions) and link directory |
 | `/meetings` | Meeting log with agendas, notes, and action items that convert into tasks |
 | `/timeline` | Gantt: every component drawn across the 33 weeks |
 | `/study` | **BREATHE-CC study context** — REDCap architecture, IEI inputs, the Time-Activity Supplement |
@@ -202,6 +202,11 @@ on every load, so the dashboard cannot go stale between visits.
 **Dates are parsed as local, not UTC.** `new Date('2026-09-15')` is UTC midnight and would
 render as Sep 14 anywhere west of Greenwich. `parseDate()` in `lib/utils.ts` splits the
 parts explicitly. A due date always lands on the day it is written.
+
+**No charting library.** The donut, the weighted-progress bars, the timeline, and the Gantt
+are all hand-built SVG and CSS. Recharts was tried first and mis-scaled its own stacked
+bars; replacing it removed ~100 kB from the evaluation page and made the arithmetic
+readable in the markup. Nothing here needs axes, brushing, or zoom.
 
 **Participation components measure elapsed time.** *Meeting Attendance & Participation* has
 no linked tasks, so measuring it by task completion would peg it at 0% all year. It tracks

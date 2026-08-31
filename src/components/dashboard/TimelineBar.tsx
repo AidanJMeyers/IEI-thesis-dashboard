@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useDeadlines, useWeeks } from '@/hooks/useDashboard';
 import { timelinePosition } from '@/lib/data/selectors';
 import { PLAN_END, PLAN_START } from '@/lib/thesis';
-import { cn, formatDateLong, PHASE_COLORS, urgencyOf, URGENCY_STYLES } from '@/lib/utils';
+import { clamp, cn, formatDateLong, PHASE_COLORS, urgencyOf, URGENCY_STYLES } from '@/lib/utils';
 
 /**
  * The whole thesis on one bar: Aug 31 2026 → May 1 2027, coloured by phase, with
@@ -76,9 +76,11 @@ export function TimelineBar() {
             style={{ left: `${todayPct}%` }}
             aria-hidden
           />
+          {/* The line sits at the exact date; the label is nudged inward so it
+              does not hang off the edge on day 1 or in the final week. */}
           <div
             className="absolute -top-6 z-10 -translate-x-1/2 whitespace-nowrap rounded bg-danger px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-white"
-            style={{ left: `${todayPct}%` }}
+            style={{ left: `${clamp(todayPct, 3, 97)}%` }}
           >
             Today
           </div>
