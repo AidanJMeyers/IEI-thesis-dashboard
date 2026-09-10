@@ -20,7 +20,7 @@ import type {
   TaskStatus,
   Week,
 } from '@/lib/types';
-import { buildSeedState, markCurrentWeek, SEED_VERSION } from './seed';
+import { buildSeedState, markCurrentWeek, mergeNewSeedRows, SEED_VERSION } from './seed';
 import { getSupabaseClient, isSupabaseConfigured, STORAGE_BUCKETS } from '@/lib/supabase/client';
 import { uid } from '@/lib/utils';
 
@@ -47,7 +47,7 @@ type Mutation =
 /** Columns that only exist in the browser and must never be sent to Postgres. */
 function stripLocalOnly(table: TableName, row: Record<string, unknown>) {
   if (table !== 'files') return row;
-  const { local_data_url: _omit, ...rest } = row as Record<string, unknown>;
+  const { local_data_url: _omit, public_url: _omit2, ...rest } = row as Record<string, unknown>;
   return rest;
 }
 
@@ -309,8 +309,11 @@ export function DashboardProvider({ children }: { children: React.ReactNode }) {
         setState(next);
       } else {
         const stored = readLocalState();
-        const next = stored ? { ...stored, weeks: markCurrentWeek(stored.weeks) } : buildSeedState();
+        // Existing browsers pick up rows added by a later release without
+        // losing anything they have edited.
+        const next = stored ? mergeNewSeedRows(stored) : buildSeedState();
         setState(next);
+        if (stored) writeLocalState(next);
       }
       setError(null);
     } catch (e) {
@@ -766,6 +769,8 @@ export function DashboardProvider({ children }: { children: React.ReactNode }) {
 
   const getFileUrl = React.useCallback<StoreValue['getFileUrl']>(
     async (file) => {
+      // Seeded deliverables ship with the app and open in either mode.
+      if (file.public_url) return file.public_url;
       if (file.local_data_url) return file.local_data_url;
       const sb = getSupabaseClient();
       if (!sb) return null;

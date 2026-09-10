@@ -5,7 +5,9 @@ import {
   ArrowUpRight,
   Ban,
   Check,
-  Database,
+  CheckCircle2,
+  FileText,
+  Globe,
   Languages,
   Layers,
   ShieldAlert,
@@ -17,18 +19,24 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { CriticalPathPanel } from '@/components/dashboard/CriticalPathPanel';
 import { AIMS, BREATHE_CC_DOCS_URL, DATA_CONSTRAINT } from '@/lib/thesis';
 import {
+  DELIVERABLE_DOCS,
   EVENT_STRUCTURE,
+  EXTERNAL_SOURCES,
   FIELDS_WITH_BRANCHING,
   IEI_INPUTS,
   INSTRUMENTS,
+  MINIMAL_SET,
+  RECONCILIATION,
   REDCAP_EXPORT_DATE,
   REDCAP_VERSION,
   TIME_ACTIVITY_SUPPLEMENT,
   TOTAL_FIELDS,
   TOTAL_IDENTIFIERS,
   TRANSLATION_STATUS,
+  VERDICT_TOTALS,
+  type Verdict,
 } from '@/lib/study';
-import { cn, formatDateLong } from '@/lib/utils';
+import { cn, formatBytes, formatDateLong, withBasePath } from '@/lib/utils';
 
 const FEED_LABEL: Record<string, { label: string; variant: 'default' | 'success' | 'accent' | 'muted' | 'warning' }> = {
   outdoor: { label: 'Outdoor exposure', variant: 'accent' },
@@ -90,11 +98,46 @@ export default function StudyPage() {
         </CardContent>
       </Card>
 
+      <section className="mb-5">
+        <SectionTitle
+          title="Companion documents"
+          description="The written record behind the addition set — committee-ready, and the basis of the IRB modification narrative."
+        />
+        <div className="grid gap-3 md:grid-cols-2">
+          {DELIVERABLE_DOCS.map((doc) => (
+            <a
+              key={doc.id}
+              href={withBasePath(`/deliverables/${doc.file}`)}
+              download
+              className="group flex items-start gap-3 rounded-lg border border-hairline/70 bg-white p-4 shadow-card transition-all hover:border-accent/60 hover:shadow-lift focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+            >
+              <span className="mt-0.5 grid h-9 w-9 shrink-0 place-items-center rounded bg-brand-50 text-accent">
+                <FileText className="h-4 w-4" />
+              </span>
+              <span className="min-w-0 flex-1">
+                <span className="flex items-center gap-1.5">
+                  <span className="text-sm font-semibold leading-snug text-brand-800 group-hover:text-accent">
+                    {doc.title}
+                  </span>
+                  <ArrowUpRight className="h-3.5 w-3.5 shrink-0 text-slate-400" />
+                </span>
+                <span className="mt-1 block text-sm leading-relaxed text-muted-foreground">
+                  {doc.summary}
+                </span>
+                <span className="mt-1.5 block text-xs text-muted-foreground">
+                  Word document · {doc.pages} pages · {formatBytes(doc.bytes)}
+                </span>
+              </span>
+            </a>
+          ))}
+        </div>
+      </section>
+
       <Tabs defaultValue="architecture">
         <TabsList>
           <TabsTrigger value="architecture">Data architecture</TabsTrigger>
           <TabsTrigger value="iei">IEI inputs</TabsTrigger>
-          <TabsTrigger value="supplement">Time-Activity Supplement</TabsTrigger>
+          <TabsTrigger value="supplement">Addition set</TabsTrigger>
           <TabsTrigger value="aims">Thesis aims</TabsTrigger>
         </TabsList>
 
@@ -230,84 +273,181 @@ export default function StudyPage() {
         {/* ---------------------------------------------------------------- */}
         <TabsContent value="supplement" className="space-y-5">
           <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-            <Metric label="Fields drafted" value={String(TIME_ACTIVITY_SUPPLEMENT.fields)} detail={`prefix ${TIME_ACTIVITY_SUPPLEMENT.prefix}`} />
-            <Metric label="Calculated" value={String(TIME_ACTIVITY_SUPPLEMENT.calculated)} detail="Derived time fractions" />
             <Metric
-              label="HIPAA identifiers"
-              value={String(TIME_ACTIVITY_SUPPLEMENT.identifiers)}
-              detail="School and secondary address"
-              tone="danger"
+              label="Drafted Aug 31"
+              value={String(TIME_ACTIVITY_SUPPLEMENT.participantFacing)}
+              detail="Participant-facing items"
             />
-            <Metric label="IRB status" value="Not submitted" detail="Drafted Aug 31, 2026" tone="danger" />
+            <Metric
+              label="Recommended"
+              value={String(MINIMAL_SET.participantFacing)}
+              detail={`Median ${MINIMAL_SET.medianSeen} seen after branching`}
+              tone="good"
+            />
+            <Metric
+              label="New HIPAA identifiers"
+              value={String(MINIMAL_SET.newIdentifiers)}
+              detail="Both addresses were already collected"
+              tone="good"
+            />
+            <Metric
+              label="Expected IRB route"
+              value="Modification"
+              detail="2–4 weeks, not a 4–6 week addendum"
+              tone="good"
+            />
           </div>
 
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="flex items-center gap-2">
-                <Database className="h-4 w-4 text-accent" />
-                Instrument sections
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <ol className="grid gap-1.5 sm:grid-cols-2">
-                {TIME_ACTIVITY_SUPPLEMENT.sections.map((s, i) => (
-                  <li key={s} className="flex items-baseline gap-2 text-sm text-ink">
-                    <span className="text-xs tabular-nums text-muted-foreground">{i + 1}.</span>
-                    {s}
-                  </li>
-                ))}
-              </ol>
+          <Card className="border-success/40 bg-success-soft/25">
+            <CardContent className="p-4">
+              <p className="flex items-start gap-2 text-sm leading-relaxed text-ink">
+                <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-success-ink" />
+                <span>
+                  <span className="font-semibold">Reconciled Sep 9, 2026.</span> The Aug 31 draft was
+                  checked item by item against the production dictionary and against public records.
+                  Twenty-two items duplicated live fields, nine were obtainable without asking
+                  anyone, and the twelve-field hour grid compressed into three banded questions plus
+                  a subtraction. {TIME_ACTIVITY_SUPPLEMENT.status}
+                </span>
+              </p>
             </CardContent>
           </Card>
 
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle>Derived time-weighting fields</CardTitle>
-              <p className="text-xs text-muted-foreground">
-                These are the values the IEI actually consumes. Everything else in the instrument
-                exists to compute them.
-              </p>
-            </CardHeader>
-            <CardContent>
-              <div className="flex flex-wrap gap-1.5">
-                {TIME_ACTIVITY_SUPPLEMENT.derivedFields.map((f) => (
-                  <code
-                    key={f}
-                    className="rounded border border-hairline/60 bg-surface px-2 py-1 text-xs text-brand-800"
-                  >
-                    {f}
-                  </code>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
+          <section>
+            <SectionTitle
+              title="Where the 61 items went"
+              description="Every participant-facing item in the draft, and what replaced it."
+            />
+            <div className="mb-3 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+              <VerdictCard
+                verdict="duplicate"
+                n={VERDICT_TOTALS.duplicate}
+                label="Already in production"
+                blurb="Live fields the draft would have collected twice"
+              />
+              <VerdictCard
+                verdict="external"
+                n={VERDICT_TOTALS.external}
+                label="Public records"
+                blurb="Obtainable at better accuracy than parental recall"
+              />
+              <VerdictCard
+                verdict="dropped"
+                n={VERDICT_TOTALS.dropped}
+                label="Out of scope"
+                blurb="Not inputs to a time-weighted exposure index"
+              />
+              <VerdictCard
+                verdict="retained"
+                n={VERDICT_TOTALS.retained}
+                label="Retained or compressed"
+                blurb="Became the 10 items below"
+              />
+            </div>
 
-          <Card className="border-danger/40">
-            <CardHeader className="pb-2">
-              <CardTitle className="flex items-center gap-2 text-danger-ink">
-                <ShieldAlert className="h-4 w-4" />
-                Why this is the critical path
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="mb-3 text-sm leading-relaxed text-ink">
-                Seven fields collect addresses, which are HIPAA identifiers. If the approved
-                BREATHE-CC consent does not already cover geocoding beyond the primary residence,
-                the submission becomes a consent addendum rather than a modification — 4–6 weeks
-                instead of 2–4.
-              </p>
-              <div className="flex flex-wrap gap-1.5">
-                {TIME_ACTIVITY_SUPPLEMENT.identifierFields.map((f) => (
-                  <code
-                    key={f}
-                    className="rounded border border-danger/30 bg-danger-soft px-2 py-1 text-xs text-danger-ink"
-                  >
-                    {f}
-                  </code>
-                ))}
+            <Card className="overflow-hidden">
+              <div className="overflow-x-auto scrollbar-thin">
+                <table className="w-full min-w-[720px] text-sm">
+                  <thead>
+                    <tr className="bg-brand-800 text-left text-xs uppercase tracking-wide text-white">
+                      <th className="px-3 py-2 font-medium">Drafted item(s)</th>
+                      <th className="px-3 py-2 text-right font-medium">n</th>
+                      <th className="px-3 py-2 font-medium">Verdict</th>
+                      <th className="px-3 py-2 font-medium">Covered by, or replaced with</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {RECONCILIATION.map((r, i) => (
+                      <tr
+                        key={r.drafted}
+                        className={cn('border-b border-hairline/40 last:border-0', i % 2 === 1 && 'bg-surface/50')}
+                      >
+                        <td className="px-3 py-2 align-top">
+                          <code className="text-xs text-brand-800">{r.drafted}</code>
+                        </td>
+                        <td className="px-3 py-2 text-right align-top tabular-nums text-muted-foreground">
+                          {r.n}
+                        </td>
+                        <td className="px-3 py-2 align-top">
+                          <VerdictBadge verdict={r.verdict} />
+                        </td>
+                        <td className="px-3 py-2 align-top leading-relaxed text-muted-foreground">
+                          {r.replacement}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
               </div>
-            </CardContent>
-          </Card>
+            </Card>
+          </section>
+
+          <section>
+            <SectionTitle
+              title={`The recommended instrument — ${MINIMAL_SET.formName}`}
+              description={`${MINIMAL_SET.participantFacing} participant-facing items, ${MINIMAL_SET.staffCurated} staff-curated fields, ${MINIMAL_SET.calculated} calculated. ${MINIMAL_SET.totalRows} data-dictionary rows against the draft's ${TIME_ACTIVITY_SUPPLEMENT.fields}.`}
+            />
+            <Card className="overflow-hidden">
+              <div className="overflow-x-auto scrollbar-thin">
+                <table className="w-full min-w-[700px] text-sm">
+                  <thead>
+                    <tr className="bg-brand-800 text-left text-xs uppercase tracking-wide text-white">
+                      <th className="px-3 py-2 font-medium">#</th>
+                      <th className="px-3 py-2 font-medium">Variable</th>
+                      <th className="px-3 py-2 font-medium">Type</th>
+                      <th className="px-3 py-2 font-medium">Item</th>
+                      <th className="px-3 py-2 font-medium">Shown to</th>
+                      <th className="px-3 py-2 font-medium">Model term</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {MINIMAL_SET.items.map((item, i) => (
+                      <tr
+                        key={item.variable}
+                        className={cn('border-b border-hairline/40 last:border-0', i % 2 === 1 && 'bg-surface/50')}
+                      >
+                        <td className="px-3 py-2 tabular-nums text-muted-foreground">{item.n}</td>
+                        <td className="px-3 py-2">
+                          <code className="text-xs font-medium text-brand-800">{item.variable}</code>
+                        </td>
+                        <td className="px-3 py-2">
+                          <Badge variant="outline" size="sm">
+                            {item.type}
+                          </Badge>
+                        </td>
+                        <td className="px-3 py-2 text-ink">{item.item}</td>
+                        <td className="px-3 py-2 text-muted-foreground">{item.shownTo}</td>
+                        <td className="px-3 py-2 text-muted-foreground">{item.term}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </Card>
+          </section>
+
+          <section>
+            <SectionTitle
+              title="Answered without asking"
+              description="Public records used in place of survey questions."
+            />
+            <div className="space-y-2">
+              {EXTERNAL_SOURCES.map((s) => (
+                <Card key={s.source} className="p-4">
+                  <div className="flex flex-wrap items-start justify-between gap-2">
+                    <p className="flex min-w-0 items-start gap-2 text-sm font-medium text-brand-800">
+                      <Globe className="mt-0.5 h-4 w-4 shrink-0 text-accent" />
+                      {s.source}
+                    </p>
+                    <Badge variant="default" size="sm">
+                      replaces: {s.replaces}
+                    </Badge>
+                  </div>
+                  <p className="mt-1.5 pl-6 text-sm leading-relaxed text-muted-foreground">{s.why}</p>
+                </Card>
+              ))}
+            </div>
+          </section>
 
           <CriticalPathPanel />
         </TabsContent>
@@ -346,20 +486,63 @@ function Metric({
   label: string;
   value: string;
   detail?: string;
-  tone?: 'danger';
+  tone?: 'danger' | 'good';
 }) {
   return (
-    <Card className="p-4">
+    <Card className={cn('p-4', tone === 'good' && 'border-success/40')}>
       <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">{label}</p>
       <p
         className={cn(
           'mt-1 text-2xl font-semibold tabular-nums',
-          tone === 'danger' ? 'text-danger-ink' : 'text-brand-800',
+          tone === 'danger' ? 'text-danger-ink' : tone === 'good' ? 'text-success-ink' : 'text-brand-800',
         )}
       >
         {value}
       </p>
       {detail ? <p className="mt-0.5 text-xs text-muted-foreground">{detail}</p> : null}
+    </Card>
+  );
+}
+
+const VERDICT_STYLE: Record<
+  Verdict,
+  { label: string; variant: 'danger' | 'accent' | 'muted' | 'success'; accent: string }
+> = {
+  duplicate: { label: 'Duplicate', variant: 'danger', accent: 'border-danger/40' },
+  external: { label: 'External', variant: 'accent', accent: 'border-accent/40' },
+  dropped: { label: 'Dropped', variant: 'muted', accent: 'border-hairline' },
+  retained: { label: 'Retained', variant: 'success', accent: 'border-success/40' },
+};
+
+function VerdictBadge({ verdict }: { verdict: Verdict }) {
+  const s = VERDICT_STYLE[verdict];
+  return (
+    <Badge variant={s.variant} size="sm">
+      {s.label}
+    </Badge>
+  );
+}
+
+function VerdictCard({
+  verdict,
+  n,
+  label,
+  blurb,
+}: {
+  verdict: Verdict;
+  n: number;
+  label: string;
+  blurb: string;
+}) {
+  const s = VERDICT_STYLE[verdict];
+  return (
+    <Card className={cn('p-4', s.accent)}>
+      <div className="flex items-baseline justify-between gap-2">
+        <p className="text-2xl font-semibold tabular-nums text-brand-800">{n}</p>
+        <VerdictBadge verdict={verdict} />
+      </div>
+      <p className="mt-1 text-sm font-medium text-ink">{label}</p>
+      <p className="mt-0.5 text-xs leading-relaxed text-muted-foreground">{blurb}</p>
     </Card>
   );
 }

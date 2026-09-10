@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import Link from 'next/link';
-import { AlertTriangle, ArrowRight, ShieldAlert } from 'lucide-react';
+import { AlertTriangle, ArrowRight, CheckCircle2, ShieldAlert } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { CRITICAL_PATH, DATA_CONSTRAINT } from '@/lib/thesis';
@@ -24,8 +24,9 @@ export function CriticalPathPanel() {
           <div>
             <CardTitle>Critical path — IRB &amp; instrument deployment</CardTitle>
             <p className="mt-0.5 text-sm text-muted-foreground">
-              Nothing downstream of these moves until they clear. Estimated turnaround is 2–6 weeks
-              depending on whether a consent addendum is required.
+              Nothing downstream of these moves until they clear. Since the Sep 9 reconciliation
+              showed the addition set introduces no new HIPAA identifiers, the expected route is a
+              minor modification at 2–4 weeks rather than a consent addendum at 4–6.
             </p>
           </div>
         </div>
@@ -33,30 +34,45 @@ export function CriticalPathPanel() {
 
       <CardContent className="space-y-2.5">
         {CRITICAL_PATH.map((item) => {
+          const resolved = item.status === 'resolved';
           const urgency = urgencyOf(item.target);
           const style = URGENCY_STYLES[urgency];
           return (
             <div
               key={item.id}
-              className="rounded-md border border-hairline/60 bg-white p-3"
+              className={cn(
+                'rounded-md border p-3',
+                resolved ? 'border-success/40 bg-success-soft/25' : 'border-hairline/60 bg-white',
+              )}
             >
               <div className="flex flex-wrap items-start justify-between gap-2">
                 <p className="flex min-w-0 items-start gap-2 text-sm font-medium text-ink">
-                  <span className={cn('mt-1.5 h-2 w-2 shrink-0 rounded-full', style.dot)} aria-hidden />
+                  {resolved ? (
+                    <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-success-ink" />
+                  ) : (
+                    <span className={cn('mt-1.5 h-2 w-2 shrink-0 rounded-full', style.dot)} aria-hidden />
+                  )}
                   {item.title}
                 </p>
-                {item.target ? (
+                {resolved ? (
+                  <Badge variant="success" size="sm">
+                    Resolved
+                  </Badge>
+                ) : item.target ? (
                   <span className={cn('shrink-0 text-xs font-medium tabular-nums', style.text)}>
                     {formatDate(item.target)} · {countdownLabel(item.target)}
                   </span>
                 ) : null}
               </div>
 
-              <p className="mt-1.5 pl-4 text-sm leading-relaxed text-muted-foreground">
+              <p className={cn('mt-1.5 text-sm leading-relaxed text-muted-foreground', resolved ? 'pl-6' : 'pl-4')}>
                 {item.detail}
               </p>
-              <p className="mt-1.5 pl-4 text-xs text-muted-foreground">
-                <span className="font-medium text-brand-800">Blocks:</span> {item.blocks}
+              <p className={cn('mt-1.5 text-xs text-muted-foreground', resolved ? 'pl-6' : 'pl-4')}>
+                <span className="font-medium text-brand-800">
+                  {resolved ? 'Unblocked:' : 'Blocks:'}
+                </span>{' '}
+                {item.blocks}
               </p>
             </div>
           );

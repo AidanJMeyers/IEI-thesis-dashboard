@@ -43,40 +43,49 @@ export interface CriticalPathItem {
 
 export const CRITICAL_PATH: CriticalPathItem[] = [
   {
-    id: 'irb_modification',
-    title: 'IRB modification — Time-Activity Supplement',
-    status: 'not_started',
+    id: 'dd_reconciliation',
+    title: 'Reconcile supplement fields against the production data dictionary',
+    status: 'resolved',
     detail:
-      'Instrument drafted (74 fields) but not submitted. School and secondary-residence addresses are HIPAA identifiers, so this may require a consent addendum (4–6 weeks) rather than a simple modification (2–4 weeks).',
-    blocks: 'Participant-reported time-weighting for the IEI (Aim 1)',
-    target: '2026-09-20',
+      'Done Sep 9, 2026. Of the 61 participant-facing items in the Aug 31 draft, 22 duplicate live production fields and 9 are obtainable from public records. The recommendation is a 10-item instrument — an 84% reduction — documented in two companion papers.',
+    blocks: 'Nothing further. This is what unblocked the IRB package.',
+    target: null,
   },
   {
     id: 'consent_language',
     title: 'Confirm approved consent covers geocoding beyond primary residence',
     status: 'not_started',
     detail:
-      'Determines whether the submission is a modification or a full consent addendum. This single answer sets the IRB timeline.',
+      'Still the first task on the critical path. It now applies to geocoding already happening under the approved protocol rather than to anything the addition set introduces — so if the consent does not cover it, that is a live issue independent of this thesis.',
     blocks: 'IRB submission route and turnaround',
-    target: '2026-09-06',
+    target: '2026-09-13',
+  },
+  {
+    id: 'irb_modification',
+    title: 'IRB modification — IEI addition set',
+    status: 'not_started',
+    detail:
+      'Ten participant-facing items, zero new HIPAA identifiers. The secondary-residence and school addresses expected to force a consent addendum are already collected and geocoded under the approved protocol, so this should be a minor modification (2–4 weeks) rather than an addendum (4–6).',
+    blocks: 'Participant-reported time-weighting for the IEI (Aim 1)',
+    target: '2026-09-20',
   },
   {
     id: 'spanish_translation',
-    title: 'Spanish translation of the supplement',
+    title: 'Spanish translation of the addition set',
     status: 'not_started',
     detail:
-      'The BREATHE-CC cohort is bilingual; the translated instrument must be submitted alongside the English version, not after it.',
+      'The BREATHE-CC cohort is bilingual; the translated items must be submitted alongside the English version, not after it. Ten items is roughly a day of translator time, against several days for the draft it replaces.',
     blocks: 'IRB submission completeness',
     target: '2026-09-20',
   },
   {
-    id: 'dd_reconciliation',
-    title: 'Reconcile supplement fields against the production data dictionary',
+    id: 'campus_lookup',
+    title: 'Build the campus bell-schedule lookup table',
     status: 'not_started',
     detail:
-      'Gas cooking, secondhand smoke, and mold/dampness likely already exist at baseline. Duplicates must be removed before the import file goes to IRB.',
-    blocks: 'IRB package and the indoor-exposure scoring module',
-    target: '2026-09-06',
+      'Eight districts cover the cohort. A campus-level table keyed on school_name removes three survey questions and beats parental recall on all three. Independent of the IRB, so it can be finished this week.',
+    blocks: 'The school term of the time-weighting calculation',
+    target: '2026-09-20',
   },
 ];
 

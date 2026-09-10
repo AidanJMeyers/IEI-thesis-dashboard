@@ -169,8 +169,146 @@ export const TIME_ACTIVITY_SUPPLEMENT = {
     'ta_frac_transit',
     'ta_budget_flag',
   ],
-  status: 'Drafted 2026-08-31. Not submitted to IRB.',
+  status: 'Drafted 2026-08-31. Superseded by the reconciled 10-item set on 2026-09-09.',
+  participantFacing: 61,
 };
+
+/* -------------------------------------------------------------------------- */
+/*  Reconciliation — Sep 9, 2026                                               */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * Every participant-facing item in the Aug 31 draft, checked against the
+ * production dictionary and against public records. The four verdicts account
+ * for all 61. Numbers here are counted from the source files, not estimated.
+ */
+export type Verdict = 'duplicate' | 'external' | 'dropped' | 'retained';
+
+export interface ReconciliationRow {
+  drafted: string;
+  n: number;
+  verdict: Verdict;
+  replacement: string;
+}
+
+export const RECONCILIATION: ReconciliationRow[] = [
+  { drafted: 'ta_sec_address, ta_sec_city, ta_sec_zip', n: 3, verdict: 'duplicate', replacement: 'sec_street_address, sec_city, sec_zip_code — live, and already flagged Identifier = Y' },
+  { drafted: 'ta_school_address, ta_school_city, ta_school_zip', n: 3, verdict: 'duplicate', replacement: 'school_address + school_lat / school_lon, populated via API import from school_name' },
+  { drafted: 'ta_school_name', n: 1, verdict: 'duplicate', replacement: 'school_name and daycare_current_name' },
+  { drafted: 'ta_school_attend', n: 1, verdict: 'duplicate', replacement: 'school_attendance and daycare_attend' },
+  { drafted: 'ta_multi_residence', n: 1, verdict: 'duplicate', replacement: 'multi_household_custody' },
+  { drafted: 'ta_nights_primary, ta_nights_secondary', n: 2, verdict: 'duplicate', replacement: 'primary_home_pct and secondary_home_pct_calc' },
+  { drafted: 'ta_ac_type', n: 1, verdict: 'duplicate', replacement: 'ac_type' },
+  { drafted: 'ta_stove_fuel', n: 1, verdict: 'duplicate', replacement: 'cook_fuel' },
+  { drafted: 'ta_hood', n: 1, verdict: 'duplicate', replacement: 'exhaust_fan_use' },
+  { drafted: 'ta_smoke_indoor', n: 1, verdict: 'duplicate', replacement: 'smoking_in_home, with intensity in cigarettes_per_day_home' },
+  { drafted: 'ta_smoke_vehicle', n: 1, verdict: 'duplicate', replacement: 'smoking_in_car' },
+  { drafted: 'ta_damp', n: 1, verdict: 'duplicate', replacement: 'visible_mold_baseline, damp_spots_baseline, water_leaks_year_baseline + monthly repeats' },
+  { drafted: 'ta_sec_ac, ta_sec_stove, ta_sec_smoke', n: 3, verdict: 'duplicate', replacement: 'sec_ac_type, sec_cook_fuel, sec_smoking_in_home' },
+  { drafted: 'ta_school_mode', n: 1, verdict: 'duplicate', replacement: 'transportation_means' },
+  { drafted: 'ta_school_changed', n: 1, verdict: 'duplicate', replacement: 'change_of_address instrument' },
+
+  { drafted: 'ta_school_start, ta_school_end, ta_school_days', n: 3, verdict: 'external', replacement: 'District bell schedules and TEA instructional calendars' },
+  { drafted: 'ta_home_type, ta_home_age', n: 2, verdict: 'external', replacement: 'County appraisal district records — which also give living area, i.e. building volume' },
+  { drafted: 'ta_road', n: 1, verdict: 'external', replacement: 'TxDOT roadway inventory and AADT counts' },
+  { drafted: 'ta_industry', n: 1, verdict: 'external', replacement: 'EPA FRS / TRI and TCEQ Central Registry' },
+  { drafted: 'ta_period, ta_period_start', n: 2, verdict: 'external', replacement: 'REDCap survey timestamp against the district academic calendar' },
+
+  { drafted: 'ta_aqi_check, ta_aqi_action', n: 2, verdict: 'dropped', replacement: 'Avoidance behaviour is a mediator, not an input to exposure' },
+  { drafted: 'ta_sports, ta_sports_hrs, ta_sports_time', n: 3, verdict: 'dropped', replacement: 'Absorbed into a single outdoor-timing item' },
+  { drafted: 'ta_hvac_filter', n: 1, verdict: 'dropped', replacement: 'Weak predictor of F_inf next to windows and AC use' },
+  { drafted: 'ta_candles', n: 1, verdict: 'dropped', replacement: 'Minor source with no validated weighting' },
+  { drafted: 'ta_vape_indoor', n: 1, verdict: 'dropped', replacement: 'Captured by a two-word label amendment to smoking_in_home' },
+  { drafted: 'ta_purifier_room', n: 1, verdict: 'dropped', replacement: 'Below the resolution of a single-zone mass-balance model' },
+  { drafted: 'ta_vehicle_window', n: 1, verdict: 'dropped', replacement: 'Second-order within an already small transit term' },
+  { drafted: 'ta_notes', n: 1, verdict: 'dropped', replacement: 'Free text with no analytic role' },
+  { drafted: 'ta_survey_date', n: 1, verdict: 'dropped', replacement: 'REDCap records a survey timestamp automatically' },
+
+  { drafted: 'ta_wd_* and ta_we_* hour grid', n: 12, verdict: 'retained', replacement: 'Compressed into 3 banded items plus a residual' },
+  { drafted: 'ta_out_time', n: 1, verdict: 'retained', replacement: 'Becomes iei_out_when' },
+  { drafted: 'ta_windows', n: 1, verdict: 'retained', replacement: 'Becomes iei_windows' },
+  { drafted: 'ta_ac_use', n: 1, verdict: 'retained', replacement: 'Becomes iei_ac_use' },
+  { drafted: 'ta_stove_freq', n: 1, verdict: 'retained', replacement: 'Becomes iei_stove_freq' },
+  { drafted: 'ta_purifier', n: 1, verdict: 'retained', replacement: 'Becomes iei_purifier' },
+  { drafted: 'ta_sec_windows', n: 1, verdict: 'retained', replacement: 'Becomes iei_sec_windows' },
+];
+
+export const VERDICT_TOTALS = RECONCILIATION.reduce(
+  (acc, r) => ({ ...acc, [r.verdict]: (acc[r.verdict] ?? 0) + r.n }),
+  {} as Record<Verdict, number>,
+);
+
+/* -------------------------------------------------------------------------- */
+/*  The recommended minimal instrument                                         */
+/* -------------------------------------------------------------------------- */
+
+export interface MinimalItem {
+  n: number;
+  variable: string;
+  type: 'radio' | 'checkbox' | 'yesno' | 'text' | 'calc';
+  item: string;
+  shownTo: string;
+  term: string;
+}
+
+export const MINIMAL_SET = {
+  formName: 'iei_supplement',
+  prefix: 'iei_',
+  participantFacing: 10,
+  medianSeen: 7,
+  staffCurated: 2,
+  calculated: 5,
+  descriptive: 2,
+  totalRows: 19,
+  newIdentifiers: 0,
+  estimatedMinutes: 1.5,
+  items: [
+    { n: 1, variable: 'iei_out_wd', type: 'radio', item: 'Hours outdoors on a typical school day (5 bands)', shownTo: 'All', term: 'f — outdoor' },
+    { n: 2, variable: 'iei_out_we', type: 'radio', item: 'Hours outdoors on a typical weekend day (5 bands)', shownTo: 'All', term: 'f — outdoor' },
+    { n: 3, variable: 'iei_out_when', type: 'checkbox', item: 'Times of day usually outdoors (4 windows)', shownTo: 'Unless rarely outdoors', term: 'Diurnal O₃' },
+    { n: 4, variable: 'iei_transit', type: 'radio', item: 'Time per day in a vehicle (5 bands)', shownTo: 'All', term: 'f — transit' },
+    { n: 5, variable: 'iei_windows', type: 'radio', item: 'How often windows are open at home (4 levels)', shownTo: 'All', term: 'F_inf' },
+    { n: 6, variable: 'iei_ac_use', type: 'radio', item: 'How hard cooling runs in warm months (4 levels)', shownTo: 'Unless ac_type = none', term: 'F_inf' },
+    { n: 7, variable: 'iei_stove_freq', type: 'radio', item: 'How often the stove or oven is used (4 levels)', shownTo: 'Gas households only', term: 'C_source (NO₂)' },
+    { n: 8, variable: 'iei_purifier', type: 'yesno', item: 'Air purifier or air cleaner in use', shownTo: 'All', term: 'C_source removal' },
+    { n: 9, variable: 'iei_sec_windows', type: 'radio', item: 'Window opening at the second home', shownTo: 'Two-household families', term: 'F_inf (secondary)' },
+    { n: 10, variable: 'iei_sec_ac_use', type: 'radio', item: 'Cooling use at the second home', shownTo: 'Two-household families', term: 'F_inf (secondary)' },
+  ] as MinimalItem[],
+};
+
+/** Public records used in place of survey questions. */
+export const EXTERNAL_SOURCES = [
+  { source: 'District bell schedules + TEA instructional calendars', replaces: 'School start and end times, days per week', why: 'Exact to the minute, and catches early-release and holiday days no parent would report' },
+  { source: 'NCES Common Core of Data; Private School Universe Survey', replaces: 'School address and coordinates', why: 'Already the basis of the existing API import' },
+  { source: 'Texas HHS Child Care Regulation search', replaces: 'Childcare address and licensed hours', why: 'Licensed hours are on record; parents estimate' },
+  { source: 'Nueces & San Patricio County Appraisal Districts', replaces: 'Home type and age', why: 'Also gives living area — building volume, which the mass-balance model needs and the draft never asked for' },
+  { source: 'TxDOT Roadway Inventory + AADT counts', replaces: 'Distance to a major road', why: 'Continuous metres plus traffic volume, instead of a five-level guess' },
+  { source: 'EPA FRS, TRI; TCEQ Central Registry', replaces: 'Distance to industrial facilities', why: 'Actual facility coordinates and reported releases' },
+  { source: 'NOAA NCEI — KCRP daily climate', replaces: 'Seasonal AC assumptions', why: 'Required for infiltration modelling regardless' },
+  { source: 'REDCap survey timestamp', replaces: 'Which schedule the parent is describing', why: 'Answered exactly, for every response, at zero burden' },
+];
+
+/** Companion Word documents, served from /public/deliverables. */
+export const DELIVERABLE_DOCS = [
+  {
+    id: 'doc-field-inventory',
+    title: 'IEI Field Inventory and Minimal Addition Set',
+    file: 'IEI-Field-Inventory-and-Minimal-Additions.docx',
+    pages: 12,
+    bytes: 30173,
+    summary:
+      'Full inventory of production fields by IEI role, the item-by-item reconciliation of all 61 drafted items, the public-source substitutions, the 10-item recommendation, what the reduced scope costs, and the IRB analysis.',
+  },
+  {
+    id: 'doc-sample-form',
+    title: 'IEI Supplement — Sample Form and Item Justification',
+    file: 'IEI-Supplement-Sample-Form-and-Justification.docx',
+    pages: 10,
+    bytes: 23745,
+    summary:
+      'The instrument rendered as a participant sees it, with variable names and REDCap field types marked, branching syntax, calculated-field expressions, staff-curated fields, and an item-by-item justification table.',
+  },
+];
 
 /** What the IEI can and cannot be built from right now. */
 export const IEI_INPUTS = [
@@ -193,9 +331,33 @@ export const IEI_INPUTS = [
     id: 'indoor_partial',
     label: 'Indoor exposure items',
     detail:
-      'Secondhand smoke, gas cooking, mould/dampness likely already exist at baseline across the household instruments.',
+      'Secondhand smoke and its intensity, cooking fuel, range-hood use, AC and heating type, mould, damp and water damage, pets — all live at baseline and mirrored for the secondary home and after a move.',
     available: true,
-    note: 'Must be reconciled against the data dictionary before the supplement is submitted — duplicates have to come out of the import file.',
+    note: 'Reconciled against the production dictionary on Sep 9, 2026. Confirmed present, not assumed.',
+  },
+  {
+    id: 'school_address',
+    label: 'School / childcare location',
+    detail:
+      'school_address, school_lat and school_lon are live in geocode_derived_variables, populated via API import from school_name. Daycare is handled identically.',
+    available: true,
+    note: 'Already collected under the approved protocol — this is not a new identifier.',
+  },
+  {
+    id: 'secondary_address',
+    label: 'Secondary residence location',
+    detail:
+      'sec_street_address through sec_zip_code are live in secondary_household_details and already flagged Identifier = Y, with jittered coordinates in geocode_derived_variables.',
+    available: true,
+    note: 'Already collected under the approved protocol — this is not a new identifier.',
+  },
+  {
+    id: 'home_home_split',
+    label: 'Home-versus-home time split',
+    detail:
+      'primary_home_pct gives the share of time at the primary residence; secondary_home_pct_calc derives the remainder. Reusable directly as a weight.',
+    available: true,
+    note: null,
   },
   {
     id: 'outcomes',
@@ -206,34 +368,35 @@ export const IEI_INPUTS = [
   },
   {
     id: 'time_budget',
-    label: 'Time-activity budget',
+    label: 'Within-day time budget',
     detail:
-      'Hours per day in each microenvironment. Without it the composite cannot be time-weighted from participant data.',
+      'How the day splits between indoors at home, outdoors, school and transit. The home-versus-home split exists; this one does not, and it is the reason the index cannot yet be time-weighted from participant data.',
     available: false,
-    note: 'Blocked on IRB. Pipeline falls back to literature-based defaults.',
-  },
-  {
-    id: 'school_address',
-    label: 'School / childcare address',
-    detail:
-      'Roughly 30–35 hours a week are assigned to the wrong location without it.',
-    available: false,
-    note: 'HIPAA identifier — this is what may force a consent addendum.',
+    note: 'Needs 3 banded items (iei_out_wd, iei_out_we, iei_transit). Pipeline falls back to literature defaults until then.',
   },
   {
     id: 'infiltration',
-    label: 'AC type and window behaviour',
+    label: 'Window and cooling behaviour',
     detail:
-      'Drives the infiltration factor in C_indoor = F_inf × C_ambient + C_source. Without it the indoor model collapses to an unvalidated constant.',
+      'Drives F_inf in C_indoor = F_inf × C_ambient + C_source. Equipment type is captured; usage behaviour is not, so the indoor model currently collapses to an unvalidated constant.',
     available: false,
-    note: 'Blocked on IRB.',
+    note: 'Needs 2 items for the primary home (iei_windows, iei_ac_use), 2 more for the secondary.',
   },
   {
     id: 'transit',
-    label: 'Transit mode and duration',
-    detail: 'In-vehicle concentrations differ materially from ambient.',
+    label: 'Time spent in vehicles',
+    detail:
+      'transportation_means records the mode but not the duration, and in-vehicle concentrations run well above both ambient and indoor levels.',
     available: false,
-    note: 'Blocked on IRB.',
+    note: 'Needs 1 banded item (iei_transit).',
+  },
+  {
+    id: 'diurnal',
+    label: 'Timing of outdoor activity',
+    detail:
+      'Ozone peaks mid-afternoon and is near zero at dawn. Two children with identical outdoor hours can differ threefold in ozone dose depending on when those hours fall.',
+    available: false,
+    note: 'Needs 1 checkbox item (iei_out_when).',
   },
 ];
 
@@ -242,5 +405,5 @@ export const TRANSLATION_STATUS = {
   detail:
     'The Fields tab is finished and the Surveys tab needs two items re-translated: a new compensation sentence on the primary_household_details thank-you screen, and a piped participant identifier in the prenatal_infant_history instructions. The English moved in 284 places overall, but everything except those two was markup, so the approved Spanish still holds.',
   supplement:
-    'The Time-Activity Supplement has no Spanish version yet. It must be submitted to IRB alongside the English instrument, not after it.',
+    'The addition set has no Spanish version yet, and must be submitted to IRB alongside the English version rather than after it. At ten items that is roughly a day of translator time, against several days for the 61-item draft it replaces.',
 };

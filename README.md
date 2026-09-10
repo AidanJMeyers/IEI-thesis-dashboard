@@ -179,7 +179,7 @@ cannot drift apart — and every page is written against one store interface rat
 | `/files` | File library (re-uploading a filename keeps both as versions) and link directory |
 | `/meetings` | Meeting log with agendas, notes, and action items that convert into tasks |
 | `/timeline` | Gantt: every component drawn across the 33 weeks |
-| `/study` | **BREATHE-CC study context** — REDCap architecture, IEI inputs, the Time-Activity Supplement |
+| `/study` | **BREATHE-CC study context** — REDCap architecture, IEI inputs, the reconciled addition set, and the two companion documents |
 | `/committee` | Read-only summary built for sharing |
 | `/settings` | Storage mode, CSV/JSON export, restore, roles |
 
@@ -237,7 +237,22 @@ rather than final effect estimates. The `/study` page states this in full, and t
 dashboard repeats it wherever it shows progress, because it is the single most important
 piece of framing for the committee.
 
-The critical path is the **IRB modification for the Time-Activity Supplement**. Seven of
-its 75 fields collect addresses, which are HIPAA identifiers. Whether the approved consent
-already covers geocoding beyond the primary residence decides whether this is a 2–4 week
-modification or a 4–6 week consent addendum — and that answer sets the fall timeline.
+The critical path is the **IRB modification** that deploys the missing exposure fields.
+
+On **Sep 9, 2026** the drafted Time-Activity Supplement was reconciled against the
+production dictionary, and the result changed the picture: of its 61 participant-facing
+items, **22 duplicated fields that are already live** and 9 were obtainable from public
+records. Critically, the secondary-residence and school addresses that were expected to
+force a consent addendum are *already collected and geocoded* under the approved protocol
+(`sec_street_address` is flagged `Identifier = Y`; `school_address` / `school_lat` /
+`school_lon` are populated via API import). The recommended instrument is **10 items with
+zero new HIPAA identifiers**, which should make this a minor modification rather than an
+addendum.
+
+That analysis lives in two Word documents under `public/deliverables/`, linked from the
+`/study` page and seeded into the file library:
+
+- **IEI Field Inventory and Minimal Addition Set** — production inventory, the item-by-item
+  reconciliation, public-source substitutions, the 10-item recommendation, and the IRB analysis.
+- **IEI Supplement — Sample Form and Item Justification** — the instrument as a participant
+  sees it, with REDCap field types, branching syntax, calculated fields, and a justification table.

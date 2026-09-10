@@ -73,6 +73,11 @@ export interface StoredFile {
   uploaded_at: string;
   /** Local mode only: data URL so the file stays previewable without Storage. */
   local_data_url?: string | null;
+  /**
+   * Seeded deliverables that ship with the app, served from /public. Checked
+   * before Storage so they open in either backend mode without an upload.
+   */
+  public_url?: string | null;
 }
 
 export interface ResourceLink {
