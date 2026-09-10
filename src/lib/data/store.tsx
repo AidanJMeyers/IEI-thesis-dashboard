@@ -98,6 +98,7 @@ export interface StoreValue extends DashboardState {
   signIn(email: string, password: string): Promise<string | null>;
   signOut(): Promise<void>;
   sendPasswordReset(email: string): Promise<string | null>;
+  setPassword(password: string): Promise<string | null>;
 
   // Tasks
   addTask(input: Partial<Task> & { title: string }): Task;
@@ -246,6 +247,20 @@ export function DashboardProvider({ children }: { children: React.ReactNode }) {
     await getSupabaseClient()?.auth.signOut();
   }, []);
 
+  /**
+   * Sets a password on the currently signed-in account.
+   *
+   * An invite link (and a reset link) signs you in via a token in the URL
+   * fragment but leaves the account without a usable password — so without this
+   * there is no way to log in a second time except by mailing another link.
+   */
+  const setPassword = React.useCallback<StoreValue['setPassword']>(async (password) => {
+    const sb = getSupabaseClient();
+    if (!sb) return 'Supabase is not configured for this deployment.';
+    const { error: err } = await sb.auth.updateUser({ password });
+    return err ? err.message : null;
+  }, []);
+
   const sendPasswordReset = React.useCallback<StoreValue['sendPasswordReset']>(async (email) => {
     const sb = getSupabaseClient();
     if (!sb) return 'Supabase is not configured for this deployment.';
@@ -293,6 +308,28 @@ export function DashboardProvider({ children }: { children: React.ReactNode }) {
     };
   }, []);
 
+  /**
+   * A token minted moments ago can reach PostgREST a fraction of a second
+   * before its clock agrees the token exists yet, which fails as "JWT issued at
+   * future". It happens exactly once, on the first load right after following a
+   * sign-in link — the worst possible moment, since that is a committee
+   * member's first impression of the dashboard. Wait out the skew and retry
+   * once rather than showing them a red error banner.
+   */
+  const loadWithClockSkewRetry = React.useCallback(
+    async (load: () => Promise<DashboardState>): Promise<DashboardState> => {
+      try {
+        return await load();
+      } catch (e) {
+        const message = e instanceof Error ? e.message : String(e);
+        if (!/issued at future|before .* valid|not yet valid/i.test(message)) throw e;
+        await new Promise((r) => setTimeout(r, 1500));
+        return load();
+      }
+    },
+    [],
+  );
+
   const refresh = React.useCallback(async () => {
     try {
       if (mode === 'supabase') {
@@ -305,7 +342,7 @@ export function DashboardProvider({ children }: { children: React.ReactNode }) {
           setReady(true);
           return;
         }
-        const next = await loadFromSupabase();
+        const next = await loadWithClockSkewRetry(loadFromSupabase);
         setState(next);
       } else {
         const stored = readLocalState();
@@ -324,7 +361,7 @@ export function DashboardProvider({ children }: { children: React.ReactNode }) {
     } finally {
       setReady(true);
     }
-  }, [mode, loadFromSupabase, auth.checked, auth.userId]);
+  }, [mode, loadFromSupabase, loadWithClockSkewRetry, auth.checked, auth.userId]);
 
   React.useEffect(() => {
     void refresh();
@@ -912,6 +949,7 @@ export function DashboardProvider({ children }: { children: React.ReactNode }) {
     signIn,
     signOut,
     sendPasswordReset,
+    setPassword,
     addTask,
     updateTask,
     setTaskStatus,

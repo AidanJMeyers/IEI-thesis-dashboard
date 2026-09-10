@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { LogIn, LogOut, ShieldCheck, ShieldQuestion } from 'lucide-react';
+import { KeyRound, LogIn, LogOut, ShieldCheck, ShieldQuestion } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -14,6 +14,85 @@ import { useStore } from '@/hooks/useDashboard';
  * gives every new account the read-only `committee` role. Letting the browser
  * pick its own role would make Row Level Security decorative.
  */
+/**
+ * Sets a password on an account that arrived through an invite or reset link.
+ * Those links sign you in but leave no usable password, so without this the only
+ * way back in is another emailed link.
+ */
+function SetPasswordForm() {
+  const { setPassword } = useStore();
+  const [value, setValue] = React.useState('');
+  const [confirm, setConfirm] = React.useState('');
+  const [state, setState] = React.useState<{ tone: 'error' | 'ok'; text: string } | null>(null);
+  const [busy, setBusy] = React.useState(false);
+
+  async function submit(e: React.FormEvent) {
+    e.preventDefault();
+    if (value !== confirm) {
+      setState({ tone: 'error', text: 'The two passwords do not match.' });
+      return;
+    }
+    setBusy(true);
+    const err = await setPassword(value);
+    setBusy(false);
+    if (err) {
+      setState({ tone: 'error', text: err });
+      return;
+    }
+    setValue('');
+    setConfirm('');
+    setState({ tone: 'ok', text: 'Password set. You can sign in with it from now on.' });
+  }
+
+  return (
+    <form onSubmit={submit} className="space-y-3 rounded-md border border-hairline/60 bg-surface/50 p-3">
+      <div>
+        <p className="flex items-center gap-1.5 text-sm font-medium text-brand-800">
+          <KeyRound className="h-3.5 w-3.5 text-accent" />
+          Set a password
+        </p>
+        <p className="mt-0.5 text-xs text-muted-foreground">
+          Do this once after accepting an invite — otherwise every future login needs a new
+          emailed link.
+        </p>
+      </div>
+
+      <div className="grid gap-2 sm:grid-cols-2">
+        <Input
+          type="password"
+          autoComplete="new-password"
+          value={value}
+          onChange={(e) => setValue(e.target.value)}
+          placeholder="New password"
+          minLength={12}
+          required
+          aria-label="New password"
+        />
+        <Input
+          type="password"
+          autoComplete="new-password"
+          value={confirm}
+          onChange={(e) => setConfirm(e.target.value)}
+          placeholder="Confirm password"
+          minLength={12}
+          required
+          aria-label="Confirm password"
+        />
+      </div>
+
+      {state ? (
+        <p className={state.tone === 'error' ? 'text-sm text-danger-ink' : 'text-sm text-success-ink'}>
+          {state.text}
+        </p>
+      ) : null}
+
+      <Button type="submit" size="sm" variant="outline" disabled={busy}>
+        Save password
+      </Button>
+    </form>
+  );
+}
+
 export function AuthPanel() {
   const { mode, auth, signIn, signOut, sendPasswordReset } = useStore();
   const [email, setEmail] = React.useState('');
@@ -91,6 +170,18 @@ export function AuthPanel() {
               denying every read. Insert one with the appropriate role, then reload.
             </p>
           ) : null}
+
+          {auth.profile?.role === 'committee' ? (
+            <p className="rounded-md border border-warning/30 bg-warning-soft p-3 text-sm leading-relaxed text-warning-ink">
+              You have the read-only <strong>committee</strong> role. If this is your own account,
+              promote it in the Supabase SQL editor:{' '}
+              <code className="text-xs">
+                update public.profiles set role = &apos;student&apos; where email = &apos;{auth.email}&apos;;
+              </code>
+            </p>
+          ) : null}
+
+          <SetPasswordForm />
 
           <Button variant="outline" onClick={() => void signOut()}>
             <LogOut className="h-4 w-4" />
