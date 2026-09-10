@@ -43,7 +43,25 @@ function arg(flag: string): string | undefined {
 
 const email = process.argv[2];
 const role = arg('--role') as Role | undefined;
-const redirectTo = arg('--url') ?? 'http://localhost:3000';
+
+/**
+ * Supabase matches redirect targets against the allow-list literally, and the
+ * usual entry is `https://host/**`. A bare origin with no trailing slash does
+ * not match that pattern, so Supabase silently falls back to the Site URL —
+ * handing you a link that looks right and lands somewhere else. Normalising
+ * here removes the whole class of mistake.
+ */
+function normalize(raw: string): string {
+  try {
+    const u = new URL(raw);
+    if (u.pathname === '' || u.pathname === '/') u.pathname = '/';
+    return u.toString();
+  } catch {
+    return raw;
+  }
+}
+
+const redirectTo = normalize(arg('--url') ?? 'http://localhost:3000/');
 
 if (!email || email.startsWith('--')) {
   console.error(
@@ -103,6 +121,22 @@ async function main() {
 
     if (roleError) console.warn(`  Role update failed: ${roleError.message}`);
     else console.log(`  Role set to '${role}'.`);
+  }
+
+  // Verify the link actually points where we asked. Supabase does not error on
+  // a rejected redirect target — it quietly substitutes the Site URL, so the
+  // only way to catch it is to read the link back.
+  const actual = new URL(data.properties.action_link).searchParams.get('redirect_to');
+  if (actual && actual.replace(/\/$/, '') !== redirectTo.replace(/\/$/, '')) {
+    console.error(
+      '\n  WARNING: this link does NOT go where you asked.\n' +
+        `    requested: ${redirectTo}\n` +
+        `    actual:    ${actual}\n\n` +
+        '  Supabase rejected the target and fell back to your Site URL. Add it under\n' +
+        '  Authentication -> URL Configuration -> Redirect URLs (e.g. https://host/**)\n' +
+        '  and run this again. Do not send the link below.\n',
+    );
+    process.exitCode = 1;
   }
 
   console.log(
