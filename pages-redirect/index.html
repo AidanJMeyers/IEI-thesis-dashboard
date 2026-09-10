@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Thesis Command Center has moved</title>
+    <meta name="robots" content="noindex" />
+
+    <!--
+      This GitHub Pages site used to serve a static export of the dashboard.
+      That build had no database credentials, so it always showed the plan as
+      originally seeded — identical in appearance to the live dashboard but
+      frozen. Two URLs that look the same and disagree is worse than one URL,
+      so this now redirects to the live deployment and keeps the path.
+
+      The no-JS fallback is the meta refresh below; the link is there for
+      anyone who lands with both disabled.
+    -->
+    <meta http-equiv="refresh" content="0; url=https://iei-thesis-dashboard.vercel.app/" />
+
+    <style>
+      :root { color-scheme: light; }
+      body {
+        margin: 0;
+        min-height: 100vh;
+        display: grid;
+        place-items: center;
+        background: #f5f7f9;
+        color: #333;
+        font: 15px/1.6 Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+        padding: 24px;
+      }
+      .card {
+        max-width: 30rem;
+        background: #fff;
+        border: 1px solid #ccc;
+        border-radius: 10px;
+        padding: 28px;
+        box-shadow: 0 1px 3px rgba(33, 60, 78, 0.08);
+      }
+      h1 { margin: 0 0 4px; font-size: 1.15rem; color: #213c4e; }
+      p { margin: 0 0 14px; color: #5b6b76; }
+      a.go {
+        display: inline-block;
+        background: #213c4e;
+        color: #fff;
+        text-decoration: none;
+        padding: 9px 16px;
+        border-radius: 6px;
+        font-weight: 500;
+      }
+      a.go:hover { background: #2e6b8a; }
+      code { font-size: 0.85em; color: #213c4e; }
+    </style>
+  </head>
+
+  <body>
+    <div class="card">
+      <h1>Thesis Command Center has moved</h1>
+      <p>
+        The live dashboard is now at
+        <code>iei-thesis-dashboard.vercel.app</code>. Redirecting you there — if
+        nothing happens, use the button.
+      </p>
+      <a class="go" href="https://iei-thesis-dashboard.vercel.app/">Go to the dashboard</a>
+    </div>
+
+    <script>
+      (function () {
+        var TARGET = 'https://iei-thesis-dashboard.vercel.app';
+        var BASE = '/IEI-thesis-dashboard';
+
+        // Carry the path across so a deep link such as
+        // /IEI-thesis-dashboard/weeks/3/ still lands on /weeks/3/.
+        var path = window.location.pathname;
+        if (path.indexOf(BASE) === 0) path = path.slice(BASE.length);
+        if (!path || path.charAt(0) !== '/') path = '/' + path;
+
+        window.location.replace(TARGET + path + window.location.search + window.location.hash);
+      })();
+    </script>
+  </body>
+</html>

@@ -2,11 +2,40 @@
 
 import * as React from 'react';
 import { usePathname } from 'next/navigation';
-import { AlertCircle, X } from 'lucide-react';
+import Link from 'next/link';
+import { AlertCircle, Lock, X } from 'lucide-react';
 import { Navbar } from './Navbar';
 import { Sidebar } from './Sidebar';
-import { useRealtime } from '@/hooks/useDashboard';
+import { useRealtime, useStore } from '@/hooks/useDashboard';
 import { cn } from '@/lib/utils';
+
+/**
+ * Signed out against a live database, the dashboard falls back to the seeded
+ * plan. It looks entirely legitimate — same layout, same task count — so
+ * without this banner a committee member could read a stale plan as current,
+ * or try to tick something and get a raw Postgres error back.
+ */
+function ReadOnlyBanner() {
+  const { mode, ready, canEdit, readOnlyReason, auth } = useStore();
+  const pathname = usePathname();
+
+  if (!ready || mode !== 'supabase' || canEdit) return null;
+  if (pathname.startsWith('/settings')) return null;
+
+  const signedOut = !auth.userId;
+
+  return (
+    <div className="flex flex-wrap items-center gap-x-2 gap-y-1 border-b border-warning/30 bg-warning-soft px-4 py-2 text-sm text-warning-ink">
+      <Lock className="h-4 w-4 shrink-0" />
+      <p className="min-w-0 flex-1">{readOnlyReason}</p>
+      {signedOut ? (
+        <Link href="/settings" className="shrink-0 font-medium underline underline-offset-2">
+          Sign in
+        </Link>
+      ) : null}
+    </div>
+  );
+}
 
 function ErrorBanner() {
   const { error, refresh } = useRealtime();
@@ -41,6 +70,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   return (
     <div className="min-h-screen bg-surface">
       <Navbar onToggleSidebar={() => setSidebarOpen((v) => !v)} sidebarOpen={sidebarOpen} />
+      <ReadOnlyBanner />
       <ErrorBanner />
 
       <div className="flex">

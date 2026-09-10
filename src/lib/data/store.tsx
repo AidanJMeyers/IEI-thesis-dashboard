@@ -95,6 +95,14 @@ export interface StoreValue extends DashboardState {
   error: string | null;
 
   auth: AuthState;
+  /**
+   * Whether this viewer may change anything. False for a signed-out visitor and
+   * for committee/sponsor/external roles, matching the RLS policies exactly —
+   * so the UI refuses an edit for the same reason the database would.
+   */
+  canEdit: boolean;
+  /** Why editing is unavailable, or null when it is available. */
+  readOnlyReason: string | null;
   signIn(email: string, password: string): Promise<string | null>;
   signOut(): Promise<void>;
   sendPasswordReset(email: string): Promise<string | null>;
@@ -386,6 +394,29 @@ export function DashboardProvider({ children }: { children: React.ReactNode }) {
     };
   }, [mode, refresh]);
 
+  /* ----- write permission ----- */
+
+  /**
+   * Mirrors the RLS policies in 001_initial_schema.sql. Without this the app
+   * happily renders checkboxes to a signed-out visitor, optimistically ticks
+   * one, and then surfaces "new row violates row-level security policy" — a
+   * database error where the honest answer is "you are not signed in".
+   *
+   * Local mode has no accounts and no server, so everything is editable.
+   */
+  const canEdit = mode === 'local' || auth.profile?.role === 'student';
+
+  const readOnlyReason = canEdit
+    ? null
+    : !auth.userId
+      ? 'You are viewing the plan as originally seeded. Sign in to see live data and make changes.'
+      : `Your account has the ${auth.profile?.role ?? 'unknown'} role, which is read-only.`;
+
+  const canEditRef = React.useRef(canEdit);
+  canEditRef.current = canEdit;
+  const readOnlyReasonRef = React.useRef(readOnlyReason);
+  readOnlyReasonRef.current = readOnlyReason;
+
   /* ----- writing ----- */
 
   const persist = React.useCallback(
@@ -424,6 +455,13 @@ export function DashboardProvider({ children }: { children: React.ReactNode }) {
     (
       producer: (draft: DashboardState) => { next: DashboardState; mutations: Mutation[] },
     ) => {
+      // Refuse before touching state. Applying the change locally and letting
+      // the server reject it would leave the screen showing an edit that did
+      // not happen — worse than declining it outright.
+      if (!canEditRef.current) {
+        setError(readOnlyReasonRef.current);
+        return;
+      }
       const { next, mutations } = producer(stateRef.current);
       stateRef.current = next;
       setState(next);
@@ -729,6 +767,12 @@ export function DashboardProvider({ children }: { children: React.ReactNode }) {
 
   const addFile = React.useCallback<StoreValue['addFile']>(
     async (file, target) => {
+      // Checked before the upload starts, so a read-only viewer does not push
+      // bytes to Storage only to be refused when the row is written.
+      if (!canEditRef.current) {
+        setError(readOnlyReasonRef.current);
+        return;
+      }
       const id = uid();
       const path = `${target.componentId ?? target.taskId ?? 'general'}/${id}-${file.name}`;
       let dataUrl: string | null = null;
@@ -787,6 +831,10 @@ export function DashboardProvider({ children }: { children: React.ReactNode }) {
 
   const deleteFile = React.useCallback<StoreValue['deleteFile']>(
     async (id) => {
+      if (!canEditRef.current) {
+        setError(readOnlyReasonRef.current);
+        return;
+      }
       const file = stateRef.current.files.find((f) => f.id === id);
       if (!file) return;
       if (mode === 'supabase') {
@@ -946,6 +994,8 @@ export function DashboardProvider({ children }: { children: React.ReactNode }) {
     ready,
     error,
     auth,
+    canEdit,
+    readOnlyReason,
     signIn,
     signOut,
     sendPasswordReset,

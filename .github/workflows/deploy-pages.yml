@@ -1,13 +1,19 @@
-name: Deploy dashboard to GitHub Pages
+name: Deploy redirect to GitHub Pages
 
-# The Pages build is a static export running in Local Mode: it seeds itself from
-# context/*.json and stores each visitor's edits in their own browser. That makes
-# it a safe, always-available read of the plan with no database and no secrets.
-# The shared, writable deployment is the Vercel one.
+# GitHub Pages used to serve a static export of the dashboard. That build had no
+# database credentials, so it always rendered the plan as originally seeded —
+# visually identical to the live dashboard but permanently frozen. Two URLs that
+# look the same and disagree is a trap, especially for committee members.
+#
+# Pages now serves a redirect to the live Vercel deployment, preserving the path.
+# Nothing is built here, so this finishes in seconds.
 
 on:
   push:
     branches: [main]
+    paths:
+      - 'pages-redirect/**'
+      - '.github/workflows/deploy-pages.yml'
   workflow_dispatch:
 
 permissions:
@@ -15,52 +21,24 @@ permissions:
   pages: write
   id-token: write
 
-# Let an in-flight deploy finish rather than cancelling it mid-publish.
 concurrency:
   group: pages
   cancel-in-progress: false
 
 jobs:
-  build:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      # No `version:` here — the action reads it from package.json's
-      # `packageManager` field, and specifying both is a hard error.
-      - uses: pnpm/action-setup@v4
-
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 22
-          cache: pnpm
-
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
-
-      - name: Build static export
-        env:
-          NEXT_STATIC_EXPORT: '1'
-          NEXT_PUBLIC_BASE_PATH: /IEI-thesis-dashboard
-        run: pnpm exec next build
-
-      # Without this, GitHub Pages runs Jekyll, which silently drops the
-      # _next/ directory and the whole app 404s on its own assets.
-      - name: Disable Jekyll processing
-        run: touch out/.nojekyll
-
-      - uses: actions/configure-pages@v5
-
-      - uses: actions/upload-pages-artifact@v3
-        with:
-          path: out
-
   deploy:
-    needs: build
     runs-on: ubuntu-latest
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/configure-pages@v5
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: pages-redirect
+
       - id: deployment
         uses: actions/deploy-pages@v4
