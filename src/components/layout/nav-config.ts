@@ -6,6 +6,7 @@ import {
   FlaskConical,
   GanttChartSquare,
   LayoutDashboard,
+  ScrollText,
   Settings,
   Target,
   Users,
@@ -74,6 +75,12 @@ export const NAV_SECTIONS: Array<{ heading: string; items: NavItem[] }> = [
   {
     heading: 'Context',
     items: [
+      {
+        href: '/proposal',
+        label: 'Thesis Proposal',
+        icon: ScrollText,
+        description: 'The approved proposal, v2.0 — the project as specified',
+      },
       {
         href: '/study',
         label: 'BREATHE-CC Study',

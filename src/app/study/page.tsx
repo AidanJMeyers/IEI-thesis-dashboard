@@ -4,8 +4,10 @@ import * as React from 'react';
 import {
   ArrowUpRight,
   Ban,
+  BookOpen,
   Check,
   CheckCircle2,
+  Download,
   FileText,
   Globe,
   Languages,
@@ -15,6 +17,7 @@ import {
 import { PageHeader } from '@/components/layout/PageHeader';
 import { Card, CardContent, CardHeader, CardTitle, SectionTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { CriticalPathPanel } from '@/components/dashboard/CriticalPathPanel';
 import { AIMS, BREATHE_CC_DOCS_URL, DATA_CONSTRAINT } from '@/lib/thesis';
@@ -32,11 +35,97 @@ import {
   TIME_ACTIVITY_SUPPLEMENT,
   TOTAL_FIELDS,
   TOTAL_IDENTIFIERS,
+  COHORT_DESIGN,
+  PUBLICATION,
   TRANSLATION_STATUS,
   VERDICT_TOTALS,
   type Verdict,
 } from '@/lib/study';
 import { cn, formatBytes, formatDateLong, withBasePath } from '@/lib/utils';
+
+/**
+ * The published protocol. Committee members ask "what is BREATHE-CC?" more than
+ * any other question, and the honest answer is a peer-reviewed paper rather than
+ * a paraphrase — so the citation, the article, and the full text sit together at
+ * the top of the page. It is open access under CC BY-NC-ND, so hosting the PDF
+ * for download is permitted.
+ */
+function PublicationCard() {
+  const authors = PUBLICATION.authors;
+  return (
+    <Card className="mb-5">
+      <CardHeader className="pb-2">
+        <div className="flex flex-wrap items-start justify-between gap-2">
+          <CardTitle className="flex items-center gap-2">
+            <BookOpen className="h-4 w-4 text-accent" />
+            Published study protocol
+          </CardTitle>
+          <div className="flex flex-wrap gap-1.5">
+            <Badge variant="success">{PUBLICATION.articleType}</Badge>
+            <Badge variant="outline" size="sm">
+              {PUBLICATION.license}
+            </Badge>
+          </div>
+        </div>
+      </CardHeader>
+
+      <CardContent className="space-y-3">
+        <p className="text-sm font-medium leading-snug text-ink">{PUBLICATION.title}</p>
+
+        <p className="text-sm leading-relaxed text-muted-foreground">
+          {authors.map((a, i) => (
+            <React.Fragment key={a}>
+              {i > 0 ? ', ' : ''}
+              <span
+                className={
+                  i === PUBLICATION.studentAuthorIndex ? 'font-semibold text-brand-800' : undefined
+                }
+              >
+                {a}
+              </span>
+            </React.Fragment>
+          ))}
+          .
+        </p>
+
+        <p className="text-sm text-ink">
+          <em>{PUBLICATION.journal}</em> ({PUBLICATION.year}) {PUBLICATION.volume}:
+          {PUBLICATION.articleNumber}
+          <span className="mx-1.5 text-slate-300">·</span>
+          <a
+            href={PUBLICATION.doiUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-accent hover:underline"
+          >
+            doi:{PUBLICATION.doi}
+          </a>
+        </p>
+
+        <div className="flex flex-wrap gap-2 pt-1">
+          <Button asChild>
+            <a href={withBasePath(PUBLICATION.pdf)} download>
+              <Download className="h-4 w-4" />
+              Full text PDF ({formatBytes(PUBLICATION.pdfBytes)})
+            </a>
+          </Button>
+          <Button variant="outline" asChild>
+            <a href={PUBLICATION.url} target="_blank" rel="noopener noreferrer">
+              Read on Springer
+              <ArrowUpRight className="h-4 w-4" />
+            </a>
+          </Button>
+        </div>
+
+        <p className="rounded-md border border-warning/30 bg-warning-soft/50 p-2.5 text-xs leading-relaxed text-warning-ink">
+          Note for citation: the thesis proposal and the older context notes both say the protocol
+          was &ldquo;submitted to BMJ Open 04/03/2026&rdquo;. It was published in{' '}
+          {PUBLICATION.journal}, and it is out rather than under review. Cite it from here.
+        </p>
+      </CardContent>
+    </Card>
+  );
+}
 
 const FEED_LABEL: Record<string, { label: string; variant: 'default' | 'success' | 'accent' | 'muted' | 'warning' }> = {
   outdoor: { label: 'Outdoor exposure', variant: 'accent' },
@@ -87,9 +176,11 @@ export default function StudyPage() {
             respiratory health cohort run by the Melaram Lab at Texas A&amp;M
             University–Corpus Christi, based at Driscoll Children&rsquo;s Hospital. It follows
             children with asthma through monthly surveys, EHR abstraction, and geospatial
-            environmental monitoring in a predominantly Hispanic coastal community. Target
-            enrolment is roughly 200 children; the protocol manuscript was submitted to
-            BMJ Open on 2026-04-03. Aidan Meyers is Project Coordinator.
+            environmental monitoring in a predominantly Hispanic coastal community. Aidan Meyers is
+            Project Coordinator and second author on the protocol.
+          </p>
+          <p className="mt-2.5 text-sm leading-relaxed text-muted-foreground">
+            {COHORT_DESIGN.rationale}
           </p>
           <p className="mt-2.5 text-sm leading-relaxed text-muted-foreground">
             Architecture below reflects the {REDCAP_VERSION} production export of{' '}
@@ -97,6 +188,26 @@ export default function StudyPage() {
           </p>
         </CardContent>
       </Card>
+
+      <PublicationCard />
+
+      <section className="mb-5">
+        <SectionTitle
+          title="Cohort design"
+          description="The protocol's own description of how the study runs."
+        />
+        <div className="grid gap-2 sm:grid-cols-2 xl:grid-cols-3">
+          {COHORT_DESIGN.design.map((d) => (
+            <Card key={d.label} className="p-4">
+              <p className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+                {d.label}
+              </p>
+              <p className="mt-0.5 text-sm font-semibold text-brand-800">{d.value}</p>
+              <p className="mt-1 text-sm leading-relaxed text-muted-foreground">{d.detail}</p>
+            </Card>
+          ))}
+        </div>
+      </section>
 
       <section className="mb-5">
         <SectionTitle

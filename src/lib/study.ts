@@ -407,3 +407,88 @@ export const TRANSLATION_STATUS = {
   supplement:
     'The addition set has no Spanish version yet, and must be submitted to IRB alongside the English version rather than after it. At ten items that is roughly a day of translator time, against several days for the 61-item draft it replaces.',
 };
+
+/* -------------------------------------------------------------------------- */
+/*  Publication                                                                */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * The BREATHE-CC protocol paper. Note the journal: the thesis proposal and the
+ * older context notes both say "submitted to BMJ Open 04/03/2026". It was in
+ * fact published in BMC Public Health, and it is out — not under review. Cite
+ * it from here rather than from those documents.
+ */
+export const PUBLICATION = {
+  title:
+    'Bridging Respiratory Exposures, Asthma, and Environmental Health in Corpus Christi (BREATHE-CC): a prospective cohort study protocol',
+  journal: 'BMC Public Health',
+  year: 2026,
+  volume: '26',
+  articleNumber: '2521',
+  doi: '10.1186/s12889-026-28265-5',
+  url: 'https://link.springer.com/article/10.1186/s12889-026-28265-5',
+  doiUrl: 'https://doi.org/10.1186/s12889-026-28265-5',
+  /** Served from public/papers — open access, so redistribution is permitted. */
+  pdf: '/papers/BREATHE-CC-protocol-BMC-Public-Health-2026.pdf',
+  pdfBytes: 1_447_548,
+  license: 'CC BY-NC-ND 4.0',
+  articleType: 'Study Protocol · Open Access',
+  citation:
+    'Warden, D. E., Meyers, A., Almekhlabi, H., Kuchavaram, M., Richmond, E., Allison-Hoien, M., Jin, L., Johnson, N., Roberts, J., & Melaram, R. (2026). BMC Public Health, 26, 2521.',
+  authors: [
+    'Donald E. Warden',
+    'Aidan Meyers',
+    'Hiea Almekhlabi',
+    'Manasa Kuchavaram',
+    'Erin Richmond',
+    'Mari Allison-Hoien',
+    'Lei Jin',
+    'Natalie Johnson',
+    'Jon Roberts',
+    'Rajesh Melaram',
+  ],
+  /** Aidan is second author; Warden and Melaram contributed equally. */
+  studentAuthorIndex: 1,
+  correspondingAuthor: 'Rajesh Melaram',
+};
+
+/**
+ * The cohort in the protocol's own terms. Useful when a committee member asks
+ * "what is BREATHE-CC?" and deserves an answer that is not a paraphrase.
+ */
+export const COHORT_DESIGN = {
+  rationale:
+    'Childhood asthma disproportionately affects Hispanic children in the United States, yet few longitudinal cohorts exist in Gulf Coast communities where environmental exposures may compound sociodemographic vulnerabilities. Corpus Christi, a majority-Hispanic city with high levels of petrochemical industrial operations, reports higher asthma prevalence than state and national averages.',
+  design: [
+    {
+      label: 'Population',
+      value: 'Approximately 200 children under 10 years of age with asthma',
+      detail: 'Enrolled from Driscoll Children’s Hospital.',
+    },
+    {
+      label: 'Follow-up',
+      value: 'Monthly for up to 18 months',
+      detail:
+        'Parent-reported modified ISAAC questionnaire capturing household exposures, asthma exacerbations, and wheezing episodes.',
+    },
+    {
+      label: 'Validation',
+      value: 'Electronic health record review',
+      detail: 'Questionnaire responses are validated and supplemented against the EHR.',
+    },
+    {
+      label: 'Exposure linkage',
+      value: 'Daily PM2.5, PM10, O₃, SO₂',
+      detail:
+        'TCEQ and EPA monitoring station concentrations linked to participants’ geocoded addresses.',
+    },
+    {
+      label: 'Analysis',
+      value: 'GAMs, Poisson regression, GBTM',
+      detail:
+        'Associations between pollutant exposure, household risk factors, exacerbations, and wheezing phenotypes, adjusted for age, sex, BMI, and sociodemographic indicators. GBTM identifies latent wheezing phenotypes.',
+    },
+  ],
+  positioning:
+    'A longitudinal cohort examining Hispanic children residing in the Gulf Coast petrochemical corridor, integrating granular geospatial environmental monitoring with daily air pollutant linkage.',
+};
