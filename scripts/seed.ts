@@ -81,12 +81,15 @@ async function main() {
 
   console.log(
     '\nSeeded.\n' +
-      '\nNext: create the student profile. In the Supabase dashboard go to\n' +
-      'Authentication → Users → Invite (Ameyers@rollins.edu), then run this SQL,\n' +
-      'substituting the new user id:\n\n' +
-      "  insert into public.profiles (id, full_name, email, role)\n" +
-      "  values ('<user-uuid>', 'Aidan Meyers', 'Ameyers@rollins.edu', 'student');\n\n" +
-      'Row Level Security denies every read until a profile row exists.\n',
+      '\nNext: give yourself the student role.\n\n' +
+      '  1. Supabase dashboard → Authentication → Users → Invite Ameyers@rollins.edu\n' +
+      '  2. Accept the invite email and set a password.\n' +
+      '  3. The on_auth_user_created trigger has already made your profile row\n' +
+      '     with the read-only "committee" role. Promote it in the SQL editor:\n\n' +
+      "       update public.profiles set role = 'student'\n" +
+      "       where email = 'Ameyers@rollins.edu';\n\n" +
+      'Row Level Security denies every read until a profile row exists, and denies\n' +
+      'every write until that row says "student".\n',
   );
 }
 
