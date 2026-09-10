@@ -1,8 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { AlertTriangle } from 'lucide-react';
-import { PROPOSAL_SECTIONS } from '@/lib/proposal';
+import { PROPOSAL_ERRATA, PROPOSAL_SECTIONS } from '@/lib/proposal';
 import { cn, withBasePath } from '@/lib/utils';
 
 /** Numbered section heading, and the scroll target for the table of contents. */
@@ -52,22 +51,6 @@ export function RunIn({ label, children }: { label: string; children: React.Reac
   );
 }
 
-/**
- * A correction to the proposal as approved. Shown beside the original wording
- * rather than replacing it — the committee is reading from their own copy, and
- * silently diverging from that would be worse than noting the difference.
- */
-export function Erratum({ children }: { children: React.ReactNode }) {
-  return (
-    <aside className="flex gap-2.5 rounded-md border border-warning/40 bg-warning-soft/50 p-3">
-      <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-warning-ink" />
-      <p className="text-sm leading-relaxed text-warning-ink">
-        <span className="font-semibold">Since approval:</span> {children}
-      </p>
-    </aside>
-  );
-}
-
 /** The named Aim blocks in section II. */
 export function Aim({ n, title, children }: { n: number; title: string; children: React.ReactNode }) {
   return (
@@ -105,6 +88,88 @@ export function Figure({
         <span className="font-medium text-brand-800">Figure {number}.</span> {caption}
       </figcaption>
     </figure>
+  );
+}
+
+/**
+ * All errata in one place, above the document.
+ *
+ * The inline notes annotate the passage they concern, which is right for
+ * someone reading straight through — but it means nobody sees the four as a
+ * set, and two of them are things Aidan should actually fix in the source file.
+ * Separating "the document is wrong" from "the world moved" makes the to-do
+ * list obvious without reading the whole proposal again.
+ */
+export function ErrataSummary() {
+  const needsEdit = PROPOSAL_ERRATA.filter((e) => e.kind === 'document-error');
+  const moved = PROPOSAL_ERRATA.filter((e) => e.kind === 'overtaken-by-events');
+
+  return (
+    <div className="mb-6 rounded-lg border border-hairline/70 bg-white p-4 shadow-card sm:p-5">
+      <div className="flex flex-wrap items-baseline justify-between gap-2">
+        <h2 className="text-sm font-semibold text-brand-800">
+          Corrections to this proposal ({PROPOSAL_ERRATA.length})
+        </h2>
+        <p className="text-xs text-muted-foreground">
+          Collected here; the document below is left exactly as approved.
+        </p>
+      </div>
+
+      <div className="mt-3 grid gap-4 sm:grid-cols-2">
+        <ErrataGroup
+          title="Fix in the document"
+          tone="danger"
+          note="Errors in the proposal as written. Your committee's copy has these too."
+          items={needsEdit}
+        />
+        <ErrataGroup
+          title="Overtaken by events"
+          tone="warning"
+          note="The document was accurate when approved; circumstances changed."
+          items={moved}
+        />
+      </div>
+    </div>
+  );
+}
+
+function ErrataGroup({
+  title,
+  note,
+  tone,
+  items,
+}: {
+  title: string;
+  note: string;
+  tone: 'danger' | 'warning';
+  items: typeof PROPOSAL_ERRATA;
+}) {
+  // Deliberately not tinted. A scholarly document should not be strewn with
+  // hazard panels; a small coloured marker carries the same distinction without
+  // making the page look like it is erroring.
+  const dot = tone === 'danger' ? 'bg-danger' : 'bg-warning';
+
+  return (
+    <div className="rounded-md border border-hairline/70 bg-surface/50 p-3">
+      <p className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-brand-800">
+        <span className={cn('h-1.5 w-1.5 rounded-full', dot)} aria-hidden />
+        {title} ({items.length})
+      </p>
+      <p className="mt-0.5 text-xs text-muted-foreground">{note}</p>
+      <ul className="mt-2 space-y-1.5">
+        {items.map((e) => (
+          <li key={e.id}>
+            <a
+              href={`#${e.section}`}
+              className="block text-sm font-medium leading-snug text-ink underline-offset-2 hover:text-accent hover:underline"
+            >
+              {e.label}
+            </a>
+            <p className="mt-0.5 text-xs leading-relaxed text-muted-foreground">{e.text}</p>
+          </li>
+        ))}
+      </ul>
+    </div>
   );
 }
 

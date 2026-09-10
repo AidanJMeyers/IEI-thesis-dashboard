@@ -290,13 +290,49 @@ export const REFERENCES: Reference[] = [
  * so the committee reads the document of record and the correction together,
  * rather than a quietly edited text that no longer matches their copy.
  */
-export const PROPOSAL_ERRATA: Record<string, string> = {
-  publication:
-    'The proposal states the protocol was "submitted to BMJ Open 04/03/2026". It was subsequently published in BMC Public Health (2026) 26:2521 — see the study context page.',
-  threefold:
-    'The proposal announces the significance as "threefold" but enumerates only two points. Worth resolving before the committee reads it.',
-  nci:
-    'Methods and Disciplinary Grounding still reference the Neighborhood Completeness Index and the NCI × IEI interaction, which the Note on Scope removes. Residual text from v1.',
-  supplement:
-    'Time-weighting relies on "existing percentage-of-time variables collected in the cohort". The Sep 9 reconciliation found these are partly absent; a 10-item addition set covers the gap.',
-};
+export interface ProposalErratum {
+  id: string;
+  /** Short label for the summary list. */
+  label: string;
+  /** Section anchor the note appears beside. */
+  section: string;
+  text: string;
+  /** Whether the approved document itself needs editing, or only the reader's context. */
+  kind: 'document-error' | 'overtaken-by-events';
+}
+
+export const PROPOSAL_ERRATA: ProposalErratum[] = [
+  {
+    id: 'threefold',
+    label: '“Threefold” significance lists two points',
+    section: 'description',
+    kind: 'document-error',
+    text: 'The proposal announces the significance as "threefold" but enumerates only two points. Worth resolving before the committee reads it.',
+  },
+  {
+    id: 'nci',
+    label: 'Descoped NCI still referenced in Methods and Grounding',
+    section: 'grounding',
+    kind: 'document-error',
+    text: 'Methods and Disciplinary Grounding still reference the Neighborhood Completeness Index and the NCI × IEI interaction, which the Note on Scope removes. Residual text from v1.',
+  },
+  {
+    id: 'publication',
+    label: 'Protocol is published, not submitted',
+    section: 'description',
+    kind: 'overtaken-by-events',
+    text: 'The proposal states the protocol was "submitted to BMJ Open 04/03/2026". It was subsequently published in BMC Public Health (2026) 26:2521 — see the study context page.',
+  },
+  {
+    id: 'supplement',
+    label: 'Time-weighting variables partly absent',
+    section: 'description',
+    kind: 'overtaken-by-events',
+    text: 'Time-weighting relies on "existing percentage-of-time variables collected in the cohort". The Sep 9 reconciliation found these are partly absent; a 10-item addition set covers the gap.',
+  },
+];
+
+/** Lookup used by the inline notes, so the summary and the margin cannot drift. */
+export function erratum(id: string): string {
+  return PROPOSAL_ERRATA.find((e) => e.id === id)?.text ?? '';
+}

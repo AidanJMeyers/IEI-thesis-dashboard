@@ -9,7 +9,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
   Aim,
-  Erratum,
+  ErrataSummary,
   Figure,
   FrameworkFigure,
   P,
@@ -21,7 +21,6 @@ import {
 import {
   COMMITTEE_TABLE,
   DISCIPLINES,
-  PROPOSAL_ERRATA,
   PROPOSAL_META,
   PROPOSED_TIMELINE,
   REFERENCES,
@@ -73,6 +72,8 @@ export default function ProposalPage() {
         </CardContent>
       </Card>
 
+      <ErrataSummary />
+
       <div className="gap-8 xl:grid xl:grid-cols-[220px_minmax(0,1fr)]">
         <aside className="mb-6 hidden xl:block">
           <TableOfContents />
@@ -119,14 +120,6 @@ export default function ProposalPage() {
               outcomes in a predominantly Hispanic coastal community.
             </P>
 
-            <Erratum>
-              {PROPOSAL_ERRATA.publication}{' '}
-              <Link href="/study" className="font-medium underline underline-offset-2">
-                Open the study context
-              </Link>
-              .
-            </Erratum>
-
             <P>
               As part of our prior BREATHE-CC work, we have already characterized the geospatial
               exposure landscape (PM2.5, O₃, SO₂, and VOCs) of the Texas Coastal Bend region since
@@ -157,7 +150,6 @@ export default function ProposalPage() {
               </P>
             </Aim>
 
-            <Erratum>{PROPOSAL_ERRATA.supplement}</Erratum>
 
             <Aim n={2} title="Test IEI Associations with Pediatric Asthma Outcomes">
               <P className="text-sm">
@@ -202,7 +194,6 @@ export default function ProposalPage() {
 
             <P>The significance of this work is twofold:</P>
 
-            <Erratum>{PROPOSAL_ERRATA.threefold}</Erratum>
 
             <ol className="space-y-3">
               <li>
@@ -258,7 +249,6 @@ export default function ProposalPage() {
                 {d.body}
               </RunIn>
             ))}
-            <Erratum>{PROPOSAL_ERRATA.nci}</Erratum>
           </Section>
 
           {/* ---------------------------------------------------------------- */}
