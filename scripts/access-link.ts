@@ -1,7 +1,7 @@
 /**
  * Mints a sign-in link locally, without sending an email.
  *
- *   pnpm access-link <email> [--role student|committee|sponsor|external] [--url http://localhost:3000]
+ *   pnpm access-link <email> [--role <role>] [--name "Dr. Jane Doe"] [--url https://host/]
  *
  * Why this exists: Supabase's built-in SMTP is rate-limited to a handful of
  * messages per hour on the free tier. Invite a committee member, mistype
@@ -43,6 +43,7 @@ function arg(flag: string): string | undefined {
 
 const email = process.argv[2];
 const role = arg('--role') as Role | undefined;
+const fullName = arg('--name');
 
 /**
  * Supabase matches redirect targets against the allow-list literally, and the
@@ -65,7 +66,7 @@ const redirectTo = normalize(arg('--url') ?? 'http://localhost:3000/');
 
 if (!email || email.startsWith('--')) {
   console.error(
-    'Usage: pnpm access-link <email> [--role student|committee|sponsor|external] [--url http://localhost:3000]',
+    'Usage: pnpm access-link <email> [--role student|committee|sponsor|external] [--name "Dr. Jane Doe"] [--url https://host/]',
   );
   process.exit(1);
 }
@@ -110,17 +111,19 @@ async function main() {
 
   const userId = data.user?.id ?? existing?.id;
 
-  if (role && userId) {
-    // The signup trigger assigns 'committee'; override it here so a new
-    // committee member does not need a manual SQL step. Runs as service role,
-    // which bypasses RLS by design.
-    const { error: roleError } = await sb
-      .from('profiles')
-      .update({ role })
-      .eq('id', userId);
+  if ((role || fullName) && userId) {
+    // The signup trigger assigns 'committee' and derives a name from the email
+    // local part — "sbrown" is not what should appear next to a committee
+    // member's comments. Override both here so onboarding needs no SQL step.
+    // Runs as service role, which bypasses RLS by design.
+    const patch: Record<string, string> = {};
+    if (role) patch.role = role;
+    if (fullName) patch.full_name = fullName;
 
-    if (roleError) console.warn(`  Role update failed: ${roleError.message}`);
-    else console.log(`  Role set to '${role}'.`);
+    const { error: profileError } = await sb.from('profiles').update(patch).eq('id', userId);
+
+    if (profileError) console.warn(`  Profile update failed: ${profileError.message}`);
+    else console.log(`  Profile set: ${Object.entries(patch).map(([k, v]) => `${k}='${v}'`).join(', ')}`);
   }
 
   // Verify the link actually points where we asked. Supabase does not error on
