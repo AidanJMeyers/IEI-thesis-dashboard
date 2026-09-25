@@ -17,7 +17,7 @@ const COLUMN_ACCENT: Record<TaskStatus, string> = {
 };
 
 export function TaskBoard({ groups }: { groups: Record<TaskStatus, Task[]> }) {
-  const { setTaskStatus } = useStore();
+  const { setTaskStatus, canEdit } = useStore();
   const [draggingId, setDraggingId] = React.useState<string | null>(null);
   const [overColumn, setOverColumn] = React.useState<TaskStatus | null>(null);
   const [formOpen, setFormOpen] = React.useState(false);
@@ -86,19 +86,21 @@ export function TaskBoard({ groups }: { groups: Record<TaskStatus, Task[]> }) {
                 ) : null}
               </div>
 
-              <Button
-                variant="ghost"
-                size="sm"
-                className="mt-2 w-full justify-start text-muted-foreground"
-                onClick={() => {
-                  setEditing(undefined);
-                  setAddStatus(status);
-                  setFormOpen(true);
-                }}
-              >
-                <Plus className="h-3.5 w-3.5" />
-                Add task
-              </Button>
+              {canEdit ? (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="mt-2 w-full justify-start text-muted-foreground"
+                  onClick={() => {
+                    setEditing(undefined);
+                    setAddStatus(status);
+                    setFormOpen(true);
+                  }}
+                >
+                  <Plus className="h-3.5 w-3.5" />
+                  Add task
+                </Button>
+              ) : null}
             </section>
           );
         })}

@@ -16,7 +16,7 @@ import { PRIORITY_LABEL, SEMESTER_LABEL } from '@/lib/utils';
 const EMPTY_FILTERS: TaskFilters = {};
 
 export default function TasksPage() {
-  const { ready, components, weeks } = useStore();
+  const { ready, components, weeks, canEdit } = useStore();
   const [filters, setFilters] = React.useState<TaskFilters>(EMPTY_FILTERS);
   const [formOpen, setFormOpen] = React.useState(false);
   const { byStatus, stats } = useTasks(filters);
@@ -36,10 +36,12 @@ export default function TasksPage() {
         title="Task board"
         description={`${stats.total} tasks in view — ${stats.done} done, ${stats.in_progress} in progress, ${stats.blocked} blocked. Drag a card between columns to change its status.`}
         actions={
-          <Button onClick={() => setFormOpen(true)}>
-            <Plus className="h-4 w-4" />
-            New task
-          </Button>
+          canEdit ? (
+            <Button onClick={() => setFormOpen(true)}>
+              <Plus className="h-4 w-4" />
+              New task
+            </Button>
+          ) : null
         }
       />
 

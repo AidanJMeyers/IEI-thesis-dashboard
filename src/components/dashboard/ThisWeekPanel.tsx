@@ -10,13 +10,14 @@ import { Progress } from '@/components/ui/progress';
 import { PhaseBadge } from '@/components/shared/badges';
 import { TaskRow } from '@/components/tasks/TaskCard';
 import { TaskForm } from '@/components/tasks/TaskForm';
-import { useWeek, useWeeks } from '@/hooks/useDashboard';
+import { useStore, useWeek, useWeeks } from '@/hooks/useDashboard';
 import { sortTasks } from '@/lib/data/selectors';
 import type { Task } from '@/lib/types';
 import { formatDateRange, pct } from '@/lib/utils';
 
 export function ThisWeekPanel() {
   const { current } = useWeeks();
+  const { canEdit } = useStore();
   const { tasks, counts } = useWeek(current?.week_number ?? 1);
   const [formOpen, setFormOpen] = React.useState(false);
   const [editing, setEditing] = React.useState<Task | undefined>();
@@ -61,16 +62,18 @@ export function ThisWeekPanel() {
             title="No tasks scheduled for this week"
             description="Add the first one, or pull something forward from a later week."
             action={
-              <Button
-                size="sm"
-                onClick={() => {
-                  setEditing(undefined);
-                  setFormOpen(true);
-                }}
-              >
-                <Plus className="h-4 w-4" />
-                Add task
-              </Button>
+              canEdit ? (
+                <Button
+                  size="sm"
+                  onClick={() => {
+                    setEditing(undefined);
+                    setFormOpen(true);
+                  }}
+                >
+                  <Plus className="h-4 w-4" />
+                  Add task
+                </Button>
+              ) : null
             }
           />
         ) : (
@@ -113,17 +116,19 @@ export function ThisWeekPanel() {
       </CardContent>
 
       <div className="flex items-center gap-2 border-t border-hairline/60 p-3">
-        <Button
-          size="sm"
-          variant="outline"
-          onClick={() => {
-            setEditing(undefined);
-            setFormOpen(true);
-          }}
-        >
-          <Plus className="h-4 w-4" />
-          Add task
-        </Button>
+        {canEdit ? (
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => {
+              setEditing(undefined);
+              setFormOpen(true);
+            }}
+          >
+            <Plus className="h-4 w-4" />
+            Add task
+          </Button>
+        ) : null}
         <Button size="sm" variant="ghost" asChild className="ml-auto">
           <Link href={`/weeks/${current.week_number}`}>
             Open week

@@ -15,7 +15,7 @@ import type { LinkType } from '@/lib/types';
 import { formatBytes } from '@/lib/utils';
 
 export default function FilesPage() {
-  const { ready, components } = useStore();
+  const { ready, components, canEdit } = useStore();
   const { files, links } = useFiles();
   const [componentFilter, setComponentFilter] = React.useState('');
   const [typeFilter, setTypeFilter] = React.useState('');
@@ -50,7 +50,7 @@ export default function FilesPage() {
         </TabsList>
 
         <TabsContent value="files" className="space-y-5">
-          <FileUploader target={{}} />
+          {canEdit ? <FileUploader target={{}} /> : null}
 
           <div className="flex flex-wrap items-center gap-2">
             <Select
@@ -113,10 +113,12 @@ export default function FilesPage() {
                 </option>
               ))}
             </Select>
-            <Button onClick={() => setLinkDialog(true)} className="ml-auto">
-              <Plus className="h-4 w-4" />
-              Add link
-            </Button>
+            {canEdit ? (
+              <Button onClick={() => setLinkDialog(true)} className="ml-auto">
+                <Plus className="h-4 w-4" />
+                Add link
+              </Button>
+            ) : null}
           </div>
 
           <LinkList

@@ -34,7 +34,7 @@ export function TaskRow({
   showWeek?: boolean;
   className?: string;
 }) {
-  const { setTaskStatus } = useStore();
+  const { setTaskStatus, canEdit } = useStore();
   const meta = useTaskMeta(task);
   const done = task.status === 'done';
 
@@ -49,6 +49,7 @@ export function TaskRow({
     >
       <Checkbox
         checked={done}
+        disabled={!canEdit}
         onCheckedChange={(checked) => setTaskStatus(task.id, checked ? 'done' : 'todo')}
         aria-label={done ? `Mark "${task.title}" as not done` : `Mark "${task.title}" as done`}
         className="mt-0.5"

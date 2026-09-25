@@ -19,7 +19,7 @@ import type { Task } from '@/lib/types';
 import { formatDateRange, pct } from '@/lib/utils';
 
 export function WeekDetail({ weekNumber }: { weekNumber: number }) {
-  const { ready, moveTaskToWeek } = useStore();
+  const { ready, moveTaskToWeek, canEdit } = useStore();
   const { weeks } = useWeeks();
   const { week, tasks, counts } = useWeek(weekNumber);
   const [formOpen, setFormOpen] = React.useState(false);
@@ -94,15 +94,17 @@ export function WeekDetail({ weekNumber }: { weekNumber: number }) {
           </span>
         }
         actions={
-          <Button
-            onClick={() => {
-              setEditing(undefined);
-              setFormOpen(true);
-            }}
-          >
-            <Plus className="h-4 w-4" />
-            Add task
-          </Button>
+          canEdit ? (
+            <Button
+              onClick={() => {
+                setEditing(undefined);
+                setFormOpen(true);
+              }}
+            >
+              <Plus className="h-4 w-4" />
+              Add task
+            </Button>
+          ) : null
         }
       />
 
@@ -161,7 +163,8 @@ export function WeekDetail({ weekNumber }: { weekNumber: number }) {
                 <>
                   {open.map((task) => (
                     <div key={task.id} className="flex items-start gap-2">
-                      <TaskRow task={task} onEdit={edit} className="flex-1" />
+                      <TaskRow task={task} onEdit={canEdit ? edit : undefined} className="flex-1" />
+                      {canEdit ? (
                       <Select
                         value={String(task.week_id ?? '')}
                         onChange={(e) =>
@@ -178,6 +181,7 @@ export function WeekDetail({ weekNumber }: { weekNumber: number }) {
                           </option>
                         ))}
                       </Select>
+                      ) : null}
                     </div>
                   ))}
 

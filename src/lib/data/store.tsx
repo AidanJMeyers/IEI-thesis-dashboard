@@ -87,6 +87,8 @@ export interface AuthState {
   profile: Profile | null;
   /** True once the initial session lookup has settled. */
   checked: boolean;
+  /** True once the profile row (which carries the role) has been fetched. */
+  profileChecked: boolean;
 }
 
 export interface StoreValue extends DashboardState {
@@ -185,8 +187,9 @@ export function DashboardProvider({ children }: { children: React.ReactNode }) {
     userId: null,
     email: null,
     profile: null,
-    // Local mode has no accounts, so the check is already done.
+    // Local mode has no accounts, so both checks are already done.
     checked: !isSupabaseConfigured,
+    profileChecked: !isSupabaseConfigured,
   });
 
   React.useEffect(() => {
@@ -225,9 +228,11 @@ export function DashboardProvider({ children }: { children: React.ReactNode }) {
   // is denied, so surfacing its absence matters more than most fetch failures.
   React.useEffect(() => {
     if (mode !== 'supabase' || !auth.userId) {
-      setAuth((a) => (a.profile ? { ...a, profile: null } : a));
+      // Signed out: there is no profile to wait for.
+      setAuth((a) => (a.profile || !a.profileChecked ? { ...a, profile: null, profileChecked: true } : a));
       return;
     }
+    setAuth((a) => (a.profileChecked ? { ...a, profileChecked: false } : a));
     const sb = getSupabaseClient();
     if (!sb) return;
     let active = true;
@@ -237,7 +242,8 @@ export function DashboardProvider({ children }: { children: React.ReactNode }) {
       .eq('id', auth.userId)
       .maybeSingle()
       .then(({ data }) => {
-        if (active) setAuth((a) => ({ ...a, profile: (data as Profile | null) ?? null }));
+        if (active)
+          setAuth((a) => ({ ...a, profile: (data as Profile | null) ?? null, profileChecked: true }));
       });
     return () => {
       active = false;
@@ -339,11 +345,20 @@ export function DashboardProvider({ children }: { children: React.ReactNode }) {
   );
 
   const refresh = React.useCallback(async () => {
+    // Bail BEFORE the try block. Returning from inside it still runs the
+    // `finally`, which would mark the store ready while it holds nothing — and
+    // a "ready but empty" store renders "Week 4 is not in the plan" and "your
+    // account has the unknown role" for as long as the network takes. Harmless
+    // on a fast connection, alarming on a slow one.
+    if (mode === 'supabase') {
+      if (!auth.checked) return;
+      // The profile carries the role, so waiting for it also avoids briefly
+      // telling a student their account is read-only.
+      if (auth.userId && !auth.profileChecked) return;
+    }
+
     try {
       if (mode === 'supabase') {
-        // Wait for the session lookup: querying before it settles hits RLS with
-        // no identity and returns empty tables that look like real data.
-        if (!auth.checked) return;
         if (!auth.userId) {
           // Signed out. Show the plan as seeded rather than a blank dashboard.
           setState(buildSeedState());
@@ -369,7 +384,14 @@ export function DashboardProvider({ children }: { children: React.ReactNode }) {
     } finally {
       setReady(true);
     }
-  }, [mode, loadFromSupabase, loadWithClockSkewRetry, auth.checked, auth.userId]);
+  }, [
+    mode,
+    loadFromSupabase,
+    loadWithClockSkewRetry,
+    auth.checked,
+    auth.userId,
+    auth.profileChecked,
+  ]);
 
   React.useEffect(() => {
     void refresh();
