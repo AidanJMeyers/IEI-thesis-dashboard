@@ -34,7 +34,9 @@ export default function TasksPage() {
     <>
       <PageHeader
         title="Task board"
-        description={`${stats.total} tasks in view — ${stats.done} done, ${stats.in_progress} in progress, ${stats.blocked} blocked. Drag a card between columns to change its status.`}
+        description={`${stats.total} tasks in view — ${stats.done} done, ${stats.in_progress} in progress, ${stats.blocked} blocked.${
+          canEdit ? ' Drag a card between columns to change its status.' : ''
+        }`}
         actions={
           canEdit ? (
             <Button onClick={() => setFormOpen(true)}>
