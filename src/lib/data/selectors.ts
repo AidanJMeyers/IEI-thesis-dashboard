@@ -67,7 +67,14 @@ export function componentProgress(
     return { percent: pct(done, linked.length), done, total: linked.length, basis: 'tasks' };
   }
 
-  // Participation-style components: elapsed fraction of their semester.
+  // The elapsed-time heuristic exists for the participation components, which
+  // accrue by showing up and have no due date. Applying it to a dated
+  // deliverable would show a 20% component climbing toward "complete" purely
+  // because the semester is passing, which is worse than showing nothing.
+  if (component.due_date) {
+    return { percent: 0, done: 0, total: 0, basis: 'tasks' };
+  }
+
   const semesterWeeks = weeks.filter((w) =>
     component.semester === 'fall_2026'
       ? w.start_date < '2027-01-01'
