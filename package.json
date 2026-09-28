@@ -14,7 +14,8 @@
     "setup:storage": "tsx scripts/setup-storage.ts",
     "access-link": "tsx scripts/access-link.ts",
     "migrate:eval-v2": "tsx scripts/migrate-eval-v2.ts",
-    "migrate:plan-v2": "tsx scripts/migrate-plan-v2.ts"
+    "migrate:plan-v2": "tsx scripts/migrate-plan-v2.ts",
+    "migrate:litreview": "tsx scripts/migrate-litreview.ts"
   },
   "dependencies": {
     "@radix-ui/react-checkbox": "^1.1.2",
