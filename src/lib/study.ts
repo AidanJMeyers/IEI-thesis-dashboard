@@ -291,6 +291,31 @@ export const EXTERNAL_SOURCES = [
 /** Companion Word documents, served from /public/deliverables. */
 export const DELIVERABLE_DOCS = [
   {
+    id: 'doc-additions-v4',
+    title: 'IEI Monthly Follow-up Additions — v4 (final)',
+    file: 'IEI-Monthly-Followup-Additions-v4.pdf',
+    pages: 30,
+    bytes: 523950,
+    summary:
+      'The form as agreed in the Sep 28 meeting, with the logic for every question: variable, REDCap type, when it appears, what it drives, and what the IEI takes from it. Includes the tap counts per scenario, the custody projection rules, the removals with who raised each, and the open decisions.',
+  },
+  {
+    id: 'doc-additions-memo',
+    title: 'IEI Additions — decisions memo (Sep 28)',
+    file: 'IEI-Additions-Decisions-Memo-Sep28.pdf',
+    pages: 4,
+    bytes: 171745,
+    summary: 'What was decided in the Sep 28 meeting and what still needs a ruling before IRB submission.',
+  },
+  {
+    id: 'doc-additions-deck',
+    title: 'IEI Additions — slide deck (Sep 28)',
+    file: 'IEI-Additions-Deck-Sep28.pdf',
+    pages: 14,
+    bytes: 185963,
+    summary: 'The deck presented to the BREATHE-CC team on Sep 28.',
+  },
+  {
     id: 'doc-field-inventory',
     title: 'IEI Field Inventory and Minimal Addition Set',
     file: 'IEI-Field-Inventory-and-Minimal-Additions.docx',

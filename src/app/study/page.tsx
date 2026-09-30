@@ -42,6 +42,17 @@ import {
   type Verdict,
 } from '@/lib/study';
 import { cn, formatBytes, formatDateLong, withBasePath } from '@/lib/utils';
+import {
+  ADDITION_SECTIONS,
+  BLOCKING_DECISIONS,
+  BURDEN,
+  MISSINGNESS_ANSWER,
+  MONTHLY_ADDITIONS,
+  OPEN_DECISIONS,
+  SEPT28_KEPT,
+  SEPT28_REMOVALS,
+  type BurdenRow,
+} from '@/lib/iei-additions';
 
 /**
  * The published protocol. Committee members ask "what is BREATHE-CC?" more than
@@ -248,7 +259,7 @@ export default function StudyPage() {
         <TabsList>
           <TabsTrigger value="architecture">Data architecture</TabsTrigger>
           <TabsTrigger value="iei">IEI inputs</TabsTrigger>
-          <TabsTrigger value="supplement">Addition set</TabsTrigger>
+          <TabsTrigger value="supplement">Monthly additions (v4)</TabsTrigger>
           <TabsTrigger value="aims">Thesis aims</TabsTrigger>
         </TabsList>
 
@@ -383,6 +394,196 @@ export default function StudyPage() {
 
         {/* ---------------------------------------------------------------- */}
         <TabsContent value="supplement" className="space-y-5">
+          {/* ---- v4: the design going to IRB ---- */}
+          <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+            <Metric
+              label="Design version"
+              value={MONTHLY_ADDITIONS.version}
+              detail={`Agreed ${formatDateLong(MONTHLY_ADDITIONS.date)}`}
+              tone="good"
+            />
+            <Metric
+              label="Monthly burden"
+              value="7–11"
+              detail="Taps once live, nothing changed"
+              tone="good"
+            />
+            <Metric
+              label="New fields"
+              value={String(MONTHLY_ADDITIONS.newFields)}
+              detail={`Plus ${MONTHLY_ADDITIONS.modifiedFields} modified (branching only)`}
+            />
+            <Metric
+              label="Decisions before IRB"
+              value={String(BLOCKING_DECISIONS)}
+              detail="M1/M2 medication review; smoking recall"
+              tone={BLOCKING_DECISIONS ? 'danger' : 'good'}
+            />
+          </div>
+
+          <Card className="border-info/40 bg-info-soft/25">
+            <CardContent className="p-4">
+              <p className="text-sm leading-relaxed text-ink">
+                <span className="font-semibold">Every addition lives inside the existing monthly
+                follow-up,</span> and no existing question&rsquo;s wording, choices or data changes.
+                A hidden instrument keeps each family&rsquo;s latest answers, so in every month after
+                go-live a family with nothing new just taps through summaries. The month it goes live
+                costs 23 taps for one home and 33–37 for two, most of them one tap per row in the two
+                routine grids.
+              </p>
+              <p className="mt-2.5 text-sm leading-relaxed text-muted-foreground">
+                {MONTHLY_ADDITIONS.existingFieldChange}
+              </p>
+            </CardContent>
+          </Card>
+
+          <div className="grid gap-3 md:grid-cols-2">
+            {MONTHLY_ADDITIONS.newInstruments.map((inst) => (
+              <Card key={inst.name} className="p-4">
+                <code className="text-xs font-semibold text-brand-800">{inst.name}</code>
+                <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">{inst.what}</p>
+              </Card>
+            ))}
+          </div>
+
+          <section>
+            <SectionTitle
+              title="Monthly burden, in taps"
+              description="One tap is one answer a parent gives. Counted by running the dictionary's own branching logic on each scenario."
+            />
+            <div className="grid gap-3 lg:grid-cols-2">
+              <BurdenTable title="Every month after go-live" rows={BURDEN.steadyState} tone="good" />
+              <BurdenTable title="The month it goes live" rows={BURDEN.goLive} />
+            </div>
+            <Card className="mt-3">
+              <CardContent className="space-y-2 p-4 text-sm leading-relaxed">
+                <p className="text-ink">{BURDEN.netEffect}</p>
+                <p className="text-muted-foreground">{BURDEN.comparison}</p>
+              </CardContent>
+            </Card>
+          </section>
+
+          <section>
+            <SectionTitle
+              title="The form, section by section"
+              description="Where each block sits and what the IEI takes from it."
+            />
+            <div className="space-y-2">
+              {ADDITION_SECTIONS.map((s) => (
+                <Card key={s.id} className="p-4">
+                  <div className="flex flex-wrap items-baseline justify-between gap-2">
+                    <h4 className="text-sm font-semibold text-brand-800">{s.label}</h4>
+                    <Badge variant="outline" size="sm">
+                      {s.range}
+                    </Badge>
+                  </div>
+                  <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">{s.what}</p>
+                  <p className="mt-1.5 text-xs leading-relaxed text-muted-foreground">
+                    <span className="font-medium text-brand-800">Feeds:</span> {s.feeds}
+                  </p>
+                </Card>
+              ))}
+            </div>
+          </section>
+
+          <section>
+            <SectionTitle
+              title="Decisions still open"
+              description="The first two need an answer before the IRB submission; the rest can be settled as the dictionary is finalised."
+            />
+            <div className="space-y-2">
+              {OPEN_DECISIONS.map((d) => (
+                <div
+                  key={d.n}
+                  className={cn(
+                    'rounded-md border bg-white p-3',
+                    d.blocking ? 'border-danger/40' : 'border-hairline/60',
+                  )}
+                >
+                  <div className="flex flex-wrap items-start justify-between gap-2">
+                    <p className="flex min-w-0 items-start gap-2 text-sm font-medium text-ink">
+                      <span className="text-xs tabular-nums text-muted-foreground">{d.n}.</span>
+                      {d.question}
+                    </p>
+                    <div className="flex shrink-0 items-center gap-2">
+                      {d.blocking ? (
+                        <Badge variant="danger" size="sm">
+                          Blocks IRB
+                        </Badge>
+                      ) : null}
+                      <Badge variant="outline" size="sm">
+                        {d.who}
+                      </Badge>
+                    </div>
+                  </div>
+                  <p className="mt-1.5 pl-5 text-sm leading-relaxed text-muted-foreground">
+                    {d.detail}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </section>
+
+          <section>
+            <SectionTitle
+              title="What the Sep 28 meeting changed"
+              description="Six items cut from the monthly form, two kept over objections."
+            />
+            <div className="space-y-2">
+              {SEPT28_REMOVALS.map((r) => (
+                <div key={r.id} className="rounded-md border border-hairline/60 bg-white p-3">
+                  <div className="flex flex-wrap items-baseline justify-between gap-2">
+                    <p className="text-sm font-medium text-ink">
+                      <span className="text-muted-foreground">{r.id}</span> &middot; {r.item}
+                    </p>
+                    <Badge variant="muted" size="sm">
+                      {r.raisedBy}
+                    </Badge>
+                  </div>
+                  <p className="mt-1 text-sm leading-relaxed text-muted-foreground">{r.why}</p>
+                </div>
+              ))}
+              {SEPT28_KEPT.map((k) => (
+                <div key={k.item} className="rounded-md border border-success/30 bg-success-soft/20 p-3">
+                  <div className="flex flex-wrap items-baseline justify-between gap-2">
+                    <p className="text-sm font-medium text-ink">Kept &middot; {k.item}</p>
+                    <Badge variant="muted" size="sm">
+                      {k.raisedBy}
+                    </Badge>
+                  </div>
+                  <p className="mt-1 text-sm leading-relaxed text-muted-foreground">{k.why}</p>
+                </div>
+              ))}
+            </div>
+          </section>
+
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle>Variable count and missing data</CardTitle>
+              <p className="text-xs text-muted-foreground">
+                Dr. Jin&rsquo;s question: new items add missing values, and a long variable list
+                strains any model that uses them all.
+              </p>
+            </CardHeader>
+            <CardContent>
+              <ul className="space-y-2">
+                {MISSINGNESS_ANSWER.map((point, i) => (
+                  <li key={i} className="flex gap-2 text-sm leading-relaxed text-muted-foreground">
+                    <span className="text-accent">&bull;</span>
+                    {point}
+                  </li>
+                ))}
+              </ul>
+            </CardContent>
+          </Card>
+
+          {/* ---- How the design got here ---- */}
+          <SectionTitle
+            title="How the design got here"
+            description="The Aug 31 draft and the Sep 9 reconciliation that produced it. Kept because the reasoning is what the IRB narrative rests on."
+            className="pt-2"
+          />
+
           <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
             <Metric
               label="Drafted Aug 31"
@@ -679,5 +880,54 @@ function InputCard({ input }: { input: (typeof IEI_INPUTS)[number] }) {
         <p className="mt-1.5 pl-6 text-xs font-medium text-warning-ink">{input.note}</p>
       ) : null}
     </div>
+  );
+}
+
+/** Compact burden table: scenario, taps, questions, medication questions shown. */
+function BurdenTable({
+  title,
+  rows,
+  tone,
+}: {
+  title: string;
+  rows: BurdenRow[];
+  tone?: 'good';
+}) {
+  return (
+    <Card className={cn(tone === 'good' && 'border-success/40')}>
+      <CardHeader className="pb-2">
+        <CardTitle className="text-sm">{title}</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <div className="overflow-x-auto">
+          <table className="w-full min-w-[320px] text-sm">
+            <thead>
+              <tr className="border-b border-hairline/70 text-left text-xs uppercase tracking-wide text-muted-foreground">
+                <th className="pb-1.5 font-medium">Scenario</th>
+                <th className="pb-1.5 text-right font-medium">Taps</th>
+                <th className="pb-1.5 text-right font-medium">Qs</th>
+                <th className="pb-1.5 text-right font-medium">Meds</th>
+              </tr>
+            </thead>
+            <tbody>
+              {rows.map((r) => (
+                <tr key={r.scenario} className="border-b border-hairline/40 last:border-0">
+                  <td className="py-1.5 pr-2 leading-snug text-ink">{r.scenario}</td>
+                  <td className="py-1.5 text-right font-medium tabular-nums text-brand-800">
+                    {r.taps}
+                  </td>
+                  <td className="py-1.5 text-right tabular-nums text-muted-foreground">
+                    {r.questions}
+                  </td>
+                  <td className="py-1.5 text-right tabular-nums text-muted-foreground">
+                    {r.medsShown}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </CardContent>
+    </Card>
   );
 }
